@@ -1,0 +1,3314 @@
+<!DOCTYPE html>
+<!-- Valcova Džungláreň v1.0 - rodinná botanická appka -->
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1f4d2e">
+<title>🌿 Valcova Džungláreň</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='56' fill='%231f4d2e' /%3E%3Cg transform='translate(60 62)' fill='%23f1ecdc'%3E%3Cpath d='M 0 28 C -22 22, -32 8, -30 -10 C -28 -24, -18 -32, -8 -34 C 0 -36, 8 -34, 14 -28 C 22 -20, 26 -8, 24 6 C 22 18, 12 26, 0 28 Z'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f1ecdc;
+    --paper-deep: #e3dcc3;
+    --ink: #0f1f15;
+    --ink-soft: #3d4a3f;
+    --accent: #1f4d2e;
+    --accent-warm: #b87333;
+    --gold: #c9a961;
+    --line: #b8ad8e;
+
+    /* Farby kategórií */
+    --cat-tropical: #1f6b5e;
+    --cat-tropical-bg: #d4e8e1;
+    --cat-succulent: #b86b3a;
+    --cat-succulent-bg: #f1d9c2;
+    --cat-desert: #c97a1e;
+    --cat-desert-bg: #f5dcb5;
+    --cat-citrus: #a8a017;
+    --cat-citrus-bg: #ece7b8;
+    --cat-foliage: #4a6b3d;
+    --cat-foliage-bg: #d8e0c9;
+    --cat-carnivore: #6b2e4a;
+    --cat-carnivore-bg: #e0c8d4;
+    --cat-flower: #b54a6b;
+    --cat-flower-bg: #f0d0d8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(31,77,46,0.06) 0%, transparent 50%),
+      radial-gradient(circle at 90% 85%, rgba(184,115,51,0.05) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(201,169,97,0.03) 0%, transparent 70%);
+  }
+
+  /* ===== HLAVIČKA ===== */
+  header {
+    padding: 48px 32px 32px;
+    border-bottom: 1px solid var(--line);
+    text-align: center;
+    position: relative;
+  }
+  header::before {
+    content: "❦";
+    position: absolute;
+    top: 14px; left: 50%;
+    transform: translateX(-50%);
+    width: auto; height: auto;
+    background: transparent;
+    color: var(--accent-warm);
+    font-size: 0.9rem;
+    opacity: 0.6;
+  }
+  header h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 800;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+  header h1 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent-warm);
+    font-size: 0.85em;
+    margin-right: 0.15em;
+  }
+  header .subtitle {
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+  }
+  header .count {
+    margin-top: 16px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--ink-soft);
+  }
+
+  /* ===== TOOLBAR ===== */
+  .toolbar {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 24px 16px;
+  }
+  .btn {
+    background: var(--accent);
+    color: var(--paper);
+    border: none;
+    padding: 12px 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 999px;
+    transition: all 0.2s;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(31,77,46,0.25); background: var(--ink); }
+  .btn.outline {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--ink);
+  }
+  .btn.danger { background: #8b3a3a; }
+
+  /* ===== GALÉRIA ===== */
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 18px;
+    padding: 24px 32px 80px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .plant-card {
+    background: white;
+    border-radius: 14px;
+    padding: 0;
+    cursor: pointer;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    animation: fadeInUp 0.5s ease-out backwards;
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .plant-card:hover {
+    transform: translateY(-4px) rotate(-0.5deg);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+  }
+  .plant-card .color-strip {
+    height: 80px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.4rem;
+  }
+  .plant-card .color-strip::after {
+    content: "";
+    position: absolute;
+    bottom: 0; left: 0; right: 0; height: 1px;
+    background: rgba(0,0,0,0.1);
+  }
+  .plant-card .body { padding: 14px 16px 18px; }
+  .plant-card .name {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+  .plant-card .latin {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  .plant-card .meta {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-size: 0.7rem;
+  }
+  .plant-card .tag {
+    background: var(--paper-deep);
+    padding: 3px 8px;
+    border-radius: 999px;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  .plant-card .danger-dot {
+    position: absolute;
+    top: 12px; right: 12px;
+    width: 22px; height: 22px;
+    background: #c44;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+
+  /* ===== MODAL ===== */
+  .modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 36, 25, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    overflow-y: auto;
+    padding: 24px;
+  }
+  .modal-backdrop.active { display: block; }
+  .modal {
+    background: var(--paper);
+    border-radius: 16px;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 32px;
+    position: relative;
+    animation: modalIn 0.3s ease-out;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .modal-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.1rem;
+  }
+  .modal h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 800;
+    font-size: 1.8rem;
+    margin-bottom: 4px;
+  }
+  .modal h2 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--ink-soft);
+    font-size: 1.1rem;
+    display: block;
+  }
+  .check-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: 0.78rem;
+  }
+  .check-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 11px;
+    background: var(--paper-deep);
+    color: var(--ink);
+    text-decoration: none;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .check-links a:hover {
+    background: var(--ink);
+    color: var(--paper);
+    transform: translateY(-1px);
+  }
+  .check-links .hint {
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    font-style: italic;
+    width: 100%;
+    margin-bottom: 2px;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 20px 0 28px;
+  }
+
+  /* ===== PREVIEW (štítok + karta) ===== */
+  .preview-wrap {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 16px 0;
+  }
+  .preview-wrap .label {
+    text-align: center;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 12px;
+  }
+
+  /* ===== ŠTÍTOK 5×8 cm ===== */
+  .stitok {
+    width: 5cm;
+    height: 8cm;
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    border: 1px solid var(--line);
+  }
+  .stitok .head {
+    padding: 8px 8px 7px;
+    text-align: center;
+    color: white;
+    position: relative;
+  }
+  .stitok .head .nm {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 11pt;
+    line-height: 1.05;
+  }
+  .stitok .head .lt {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 6.5pt;
+    opacity: 0.85;
+    margin-top: 1px;
+  }
+  .stitok .head .side-label {
+    font-size: 5.5pt;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.65;
+    margin-top: 3px;
+  }
+  .stitok .body {
+    padding: 9px 9px 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    flex: 1;
+    justify-content: space-around;
+  }
+  .stitok .srow {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    line-height: 1.2;
+  }
+  .stitok .srow .ic-big {
+    flex-shrink: 0;
+    font-size: 16pt;
+    width: 28px;
+    text-align: center;
+    line-height: 1;
+  }
+  .stitok .srow .srow-text {
+    flex: 1;
+    font-size: 8.2pt;
+    line-height: 1.25;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .stitok .srow .srow-text b {
+    font-weight: 700;
+    font-size: 8.5pt;
+    color: var(--ink);
+  }
+  .stitok .srow .srow-sub {
+    font-weight: 400;
+    color: var(--ink-soft);
+    font-size: 7.5pt;
+  }
+  .stitok .srow.tips-row .srow-sub {
+    font-size: 7pt;
+    line-height: 1.3;
+  }
+  .stitok .foot {
+    border-top: 1px dashed var(--line);
+    padding: 6px 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+  }
+  .stitok .foot .badge {
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 7.5pt;
+  }
+  .stitok .foot .safe { background: #d4e8d4; color: #2a5a2a; }
+  .stitok .foot .toxic { background: #f0d0d0; color: #8b2a2a; }
+  .stitok .foot .air-mini { background: #d4dfe8; color: #2a4a6a; padding: 3px 9px; border-radius: 999px; font-size: 7.2pt; font-weight: 600; }
+
+  /* Eco tipy ako kompaktné riadky so surovinou + verdiktom */
+  .stitok .eco-tips {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 4px;
+    padding-top: 5px;
+    border-top: 1px dashed var(--line);
+  }
+  .stitok .eco-tip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.15;
+    font-size: 7.2pt;
+  }
+  .stitok .eco-tip .et-em {
+    font-size: 11pt;
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .stitok .eco-tip .et-txt { flex: 1; color: var(--ink-soft); }
+  .stitok .eco-tip .et-txt b {
+    font-weight: 700;
+    font-size: 7.3pt;
+  }
+  .stitok .eco-tip.eco-yes b,
+  .stitok .eco-tip.eco-yes-strong b { color: #2a5a2a; }
+  .stitok .eco-tip.eco-no b { color: #8b2a2a; }
+  .stitok .eco-tip.eco-special b { color: #8b6314; }
+  .stitok .eco-tip.eco-maybe b { color: #5a5a2a; }
+
+  /* Auto-shrink ak je veľa info: ak má štítok eco-tipy, riadky sa stiahnu */
+  .stitok .body:has(.eco-tips) {
+    gap: 5px;
+    padding: 7px 9px 5px;
+  }
+  .stitok .body:has(.eco-tips) .srow .ic-big { font-size: 13pt; width: 24px; }
+  .stitok .body:has(.eco-tips) .srow .srow-text { font-size: 7.5pt; }
+  .stitok .body:has(.eco-tips) .srow .srow-text b { font-size: 7.8pt; }
+  .stitok .body:has(.eco-tips) .srow .srow-sub { font-size: 7pt; }
+
+  /* Wrapper pre dvojstránkový štítok */
+  #stitokPreview {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: center;
+  }
+  @media (min-width: 480px) {
+    #stitokPreview { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+  }
+
+  /* ===== KARTA A6 (10,5×14,8 cm) ===== */
+  .karta {
+    width: 10.5cm;
+    height: 14.8cm;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    border: 1px solid var(--line);
+  }
+  .karta .head {
+    padding: 10px 14px 12px;
+    color: white;
+    text-align: center;
+  }
+  .karta .head .icon { font-size: 1.5rem; margin-bottom: 4px; }
+  .karta .head .nm {
+    font-family: 'Fraunces', serif;
+    font-weight: 800;
+    font-size: 14pt;
+    line-height: 1;
+  }
+  .karta .head .lt {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 8pt;
+    opacity: 0.9;
+    margin-top: 3px;
+  }
+  .karta .body {
+    padding: 10px 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 10px;
+    flex: 1;
+    font-size: 7.5pt;
+    line-height: 1.3;
+  }
+  .karta .sec {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .karta .sec.full { grid-column: 1/-1; }
+  .karta .sec .lbl {
+    font-size: 6.5pt;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .karta .sec .val { font-size: 7.5pt; }
+  .karta .sec .val b { font-weight: 600; }
+  .karta .foot {
+    background: var(--paper);
+    padding: 6px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--line);
+    font-size: 7pt;
+  }
+  .karta .foot .badge {
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 6.5pt;
+  }
+  .karta .foot .safe { background: #d4e8d4; color: #2a5a2a; }
+  .karta .foot .toxic { background: #f0d0d0; color: #8b2a2a; }
+  .karta .foot .air { background: #d4dfe8; color: #2a4a6a; }
+
+  .karta .head .side-label { font-size: 5.5pt; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.75; margin-top: 3px; }
+  .seasons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin-top: 3px; }
+  .season { padding: 4px 6px; border-radius: 4px; font-size: 6.2pt; line-height: 1.25; }
+  .season.spring { background: #e8f0d8; }
+  .season.summer { background: #f5e8c8; }
+  .season.autumn { background: #f0d8c0; }
+  .season.winter { background: #d8e0eb; }
+  .season .s-lbl { font-weight: 700; font-size: 5.8pt; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 2px; }
+
+  /* ===== EDITOR ===== */
+  .editor {
+    display: none;
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    margin-top: 20px;
+    border: 1px solid var(--line);
+  }
+  .editor.active { display: block; }
+  .editor h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+  }
+  .editor .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+  .field input, .field select, .field textarea {
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    background: var(--paper);
+  }
+  .field textarea { resize: vertical; min-height: 60px; }
+
+  /* ===== IDENTIFY MODAL ===== */
+  .id-tabs { display: flex; gap: 4px; background: var(--paper-deep); padding: 4px; border-radius: 12px; margin: 24px 0 20px; }
+  .id-tab {
+    flex: 1; padding: 10px 14px; background: transparent; border: none;
+    font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500;
+    color: var(--ink-soft); cursor: pointer; border-radius: 8px;
+    transition: all 0.2s;
+  }
+  .id-tab.active { background: white; color: var(--ink); box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+  .id-pane { display: none; }
+  .id-pane.active { display: block; }
+  .id-step { background: white; padding: 18px; border-radius: 10px; margin-bottom: 14px; border: 1px solid var(--line); }
+  .id-step h4 { font-family: 'Fraunces', serif; font-size: 1rem; margin-bottom: 10px; color: var(--accent); }
+  .id-step .hint { font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 10px; line-height: 1.4; }
+  .id-step code { background: var(--paper); padding: 1px 5px; border-radius: 3px; font-size: 0.85em; }
+  .prompt-box {
+    background: var(--paper); padding: 12px; border-radius: 6px; border: 1px solid var(--line);
+    font-family: 'SF Mono', 'Consolas', monospace; font-size: 0.78rem;
+    white-space: pre-wrap; max-height: 200px; overflow-y: auto;
+    color: var(--ink); line-height: 1.4;
+  }
+  #photoPreview { margin-top: 12px; }
+  #photoPreview img { max-width: 100%; max-height: 220px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .photo-session-banner {
+    background: linear-gradient(135deg, #1f4d2e, #2d6b42);
+    color: white;
+    padding: 14px 16px;
+    border-radius: 10px;
+    margin-top: 10px;
+  }
+  .photo-session-banner .psb-count {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 4px;
+  }
+  .photo-session-banner .psb-help {
+    font-size: 0.78rem;
+    opacity: 0.9;
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .photo-thumbs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+  }
+  .photo-thumb {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 6px;
+    overflow: hidden;
+    background: rgba(0,0,0,0.2);
+  }
+  .photo-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    box-shadow: none;
+    border-radius: 0;
+    max-height: none;
+  }
+  .photo-thumb .rm-photo {
+    position: absolute;
+    top: 4px; right: 4px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.95);
+    border: none;
+    cursor: pointer;
+    font-size: 0.75rem;
+    color: var(--ink);
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cat-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 20px 0 16px; }
+  .cat-tab {
+    padding: 6px 14px; background: white; border: 1px solid var(--line);
+    border-radius: 999px; cursor: pointer; font-family: inherit;
+    font-size: 0.8rem; font-weight: 500; color: var(--ink-soft);
+    transition: all 0.15s;
+  }
+  .cat-tab.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .cat-list {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px; max-height: 50vh; overflow-y: auto; padding: 4px;
+  }
+  .cat-list .row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; background: white; border: 1px solid var(--line);
+    border-radius: 8px; cursor: pointer; transition: all 0.15s;
+  }
+  .cat-list .row:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+  .cat-list .row .em { font-size: 1.4rem; flex-shrink: 0; }
+  .cat-list .row .nm { font-size: 0.85rem; line-height: 1.2; }
+  .cat-list .row .nm em { font-style: italic; font-size: 0.72rem; color: var(--ink-soft); display: block; }
+
+  /* ===== LOGIN ===== */
+  .login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .login-box {
+    background: white;
+    border-radius: 18px;
+    padding: 40px 32px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+    border: 1px solid var(--line);
+    text-align: center;
+    animation: fadeInUp 0.5s ease-out;
+  }
+  .login-icon { font-size: 3.5rem; margin-bottom: 12px; }
+  .brand-logo {
+    width: 86px;
+    height: 86px;
+    margin: 0 auto 14px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .brand-logo svg { width: 100%; height: 100%; display: block; }
+  .header-logo {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 8px;
+    color: var(--accent);
+  }
+  .header-logo svg { width: 100%; height: 100%; display: block; }
+  .login-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 800;
+    font-size: 2.4rem;
+    line-height: 1.05;
+    margin-bottom: 10px;
+    letter-spacing: -0.02em;
+  }
+  .login-title em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent-warm);
+    font-size: 0.85em;
+    letter-spacing: 0;
+  }
+  .login-sub {
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 28px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+  }
+  .login-box form { display: flex; flex-direction: column; gap: 12px; }
+  .login-box input {
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 1rem;
+    background: var(--paper);
+  }
+  .login-box input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .login-box button[type="submit"] { padding: 14px; font-size: 0.9rem; }
+  .login-error {
+    color: #8b2a2a;
+    background: #f5d8d8;
+    border: 1px solid #d8a0a0;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    min-height: 0;
+    margin-top: 8px;
+    padding: 0;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .login-error:not(:empty) {
+    padding: 10px 14px;
+    min-height: 1.4em;
+    animation: errShake 0.4s;
+  }
+  @keyframes errShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+  .login-help {
+    margin-top: 24px;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    text-align: left;
+  }
+  .login-help summary {
+    cursor: pointer;
+    text-align: center;
+    padding: 8px;
+    color: var(--ink-soft);
+  }
+  .accounts-table {
+    margin-top: 12px;
+    background: var(--paper);
+    border-radius: 8px;
+    padding: 12px;
+    font-family: 'SF Mono', monospace;
+    font-size: 0.78rem;
+  }
+  .accounts-table .row { padding: 4px 0; display: flex; justify-content: space-between; gap: 12px; }
+  .accounts-table .row b { color: var(--accent); }
+
+  /* ===== USER BAR & FILTER ===== */
+  .user-bar {
+    position: absolute;
+    top: 16px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+  .user-bar #welcomeMsg { font-family: 'Fraunces', serif; font-style: italic; }
+  .rank-pill {
+    display: inline-block;
+    background: var(--paper-deep);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 2px 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-style: normal;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+    vertical-align: middle;
+  }
+  header { position: relative; }
+
+  .filter-bar {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0 24px 16px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .filter-bar .ftab {
+    padding: 6px 14px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+    transition: all 0.15s;
+  }
+  .filter-bar .ftab:hover { border-color: var(--ink); }
+  .filter-bar .ftab.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .filter-bar .ftab .badge {
+    background: rgba(255,255,255,0.25);
+    padding: 1px 6px;
+    border-radius: 999px;
+    margin-left: 4px;
+    font-size: 0.72rem;
+  }
+  .filter-bar .ftab:not(.active) .badge { background: var(--paper-deep); color: var(--ink-soft); }
+
+  /* ===== SRDIEČKO + AVATARI NA KARTE ===== */
+  .plant-card .fav-btn {
+    position: absolute;
+    top: 12px; left: 12px;
+    width: 32px; height: 32px;
+    background: rgba(255,255,255,0.92);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: transform 0.2s, background 0.2s;
+    z-index: 5;
+  }
+  .plant-card .fav-btn:hover { transform: scale(1.15); }
+  .plant-card .fav-btn.is-fav { background: white; }
+  .plant-card .owners {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .plant-card .owners .owner {
+    background: var(--paper-deep);
+    color: var(--ink-soft);
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+  .plant-card .owners .owner.me { background: var(--accent); color: var(--paper); }
+
+  /* ===== HELP / FAQ MODAL ===== */
+  .help-pane { display: none; }
+  .help-pane.active { display: block; }
+
+  .contact-banner, .admin-banner, .share-banner {
+    background: linear-gradient(135deg, #2d4a2b, #4a6b3d);
+    color: white;
+    padding: 20px;
+    border-radius: 14px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    margin: 16px 0 20px;
+  }
+  .admin-banner { background: linear-gradient(135deg, #b86b3a, #c97a1e); }
+  .share-banner { background: linear-gradient(135deg, #1f4d2e, #2d6b42); margin: 20px 0 0; }
+  .cb-icon { font-size: 2.4rem; flex-shrink: 0; line-height: 1; }
+  .cb-content { flex: 1; }
+  .cb-title { font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.05rem; margin-bottom: 6px; }
+  .cb-text { font-size: 0.85rem; line-height: 1.45; opacity: 0.95; }
+  .cb-mail {
+    display: inline-block;
+    margin-top: 10px;
+    background: white;
+    color: var(--accent);
+    padding: 8px 14px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.82rem;
+    transition: transform 0.15s;
+  }
+  .cb-mail:hover { transform: translateY(-1px); }
+
+  details.faq {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  details.faq summary {
+    padding: 12px 16px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+    list-style: none;
+    position: relative;
+    padding-right: 36px;
+    user-select: none;
+  }
+  details.faq summary::-webkit-details-marker { display: none; }
+  details.faq summary::after {
+    content: "+";
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    color: var(--ink-soft);
+    transition: transform 0.2s;
+  }
+  details.faq[open] summary::after { content: "−"; }
+  details.faq summary:hover { background: var(--paper-deep); }
+  .faq-body {
+    padding: 0 16px 14px;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+  .faq-body b { color: var(--ink); }
+  .faq-body code {
+    background: var(--paper);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.85em;
+  }
+  .faq-body ol { margin-left: 18px; margin-top: 4px; }
+  .faq-body ol li { margin-bottom: 4px; }
+
+  .legend-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+  }
+  .lg-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    line-height: 1.3;
+  }
+  .lg-emo {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    width: 32px;
+    text-align: center;
+  }
+  .lg-item em {
+    color: var(--ink-soft);
+    font-style: italic;
+    font-size: 0.75rem;
+  }
+
+  /* ===== TLAČ ===== */
+  @media print {
+    @page { size: A4; margin: 1cm; }
+    body { background: white !important; }
+    body > *:not(.print-area) { display: none !important; }
+    .print-area {
+      display: block !important;
+      background: white !important;
+      position: static !important;
+    }
+    .print-area .stitok,
+    .print-area .karta {
+      box-shadow: none !important;
+      border: 1px dashed #999 !important;
+      page-break-after: always;
+      break-after: page;
+      margin: 0 0 1cm 0 !important;
+    }
+    .print-area .stitok:last-child,
+    .print-area .karta:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+  }
+  .print-area { display: none; }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(120%);
+    background: var(--ink);
+    color: var(--paper);
+    padding: 12px 24px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    transition: transform 0.3s;
+    z-index: 200;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ===== MOBILNÉ TELEFÓNY ===== */
+  /* Veľké telefóny / malé tablety */
+  @media (max-width: 768px) {
+    header { padding: 24px 16px 20px; }
+    header h1 { font-size: 2.2rem; }
+    header .subtitle { font-size: 0.7rem; letter-spacing: 0.1em; }
+    header .count { font-size: 0.85rem; margin-top: 8px; }
+
+    /* User bar – nech je pod nadpisom, nie absolute */
+    .user-bar {
+      position: static;
+      justify-content: center;
+      margin-bottom: 16px;
+      padding: 8px 16px;
+      gap: 10px;
+    }
+    .user-bar #welcomeMsg { font-size: 0.95rem; }
+
+    .toolbar { padding: 12px 12px; gap: 6px; }
+    .btn { padding: 10px 14px; font-size: 0.72rem; letter-spacing: 0.04em; }
+
+    .filter-bar { padding: 0 12px 12px; gap: 4px; }
+    .filter-bar .ftab { padding: 5px 10px; font-size: 0.72rem; }
+
+    .gallery {
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+      padding: 12px 16px 60px;
+    }
+    .plant-card .color-strip { height: 64px; font-size: 1.9rem; }
+    .plant-card .body { padding: 10px 12px 14px; }
+    .plant-card .name { font-size: 0.92rem; }
+    .plant-card .latin { font-size: 0.7rem; }
+    .plant-card .meta { font-size: 0.65rem; }
+    .plant-card .fav-btn { width: 28px; height: 28px; font-size: 0.85rem; top: 8px; left: 8px; }
+
+    .modal { padding: 20px 14px; max-width: 100%; }
+    .modal h2 { font-size: 1.4rem; }
+    .modal h2 em { font-size: 0.95rem; }
+    .modal-close { top: 10px; right: 10px; width: 32px; height: 32px; font-size: 1rem; }
+    .modal-actions { gap: 6px; }
+    .modal-actions .btn { padding: 8px 12px; font-size: 0.7rem; }
+
+    /* Štítok + karta naskladajú vertikálne */
+    .preview-wrap { gap: 16px; }
+
+    /* Login obrazovka */
+    .login-box { padding: 28px 20px; border-radius: 14px; }
+    .login-icon { font-size: 2.8rem; }
+    .login-title { font-size: 1.8rem; }
+    .login-sub { font-size: 0.75rem; margin-bottom: 20px; }
+    .login-box input { padding: 12px 14px; font-size: 16px; /* 16px aby iOS nezoomoval pri focus */ }
+
+    /* Editor */
+    .editor { padding: 16px 14px; }
+    .editor .grid { grid-template-columns: 1fr; gap: 10px; }
+    .editor h4 { font-size: 0.95rem; margin: 14px 0 8px; }
+
+    /* Identify modal */
+    .id-tabs { margin: 16px 0 14px; }
+    .id-tab { padding: 8px 10px; font-size: 0.78rem; }
+    .id-step { padding: 14px; }
+    .cat-tabs { gap: 4px; }
+    .cat-tab { padding: 5px 10px; font-size: 0.72rem; }
+    .cat-list { grid-template-columns: 1fr; gap: 6px; max-height: 60vh; }
+    .cat-list .row { padding: 8px 10px; }
+    .cat-list .row .em { font-size: 1.2rem; }
+    .cat-list .row .nm { font-size: 0.8rem; }
+  }
+
+  /* Malé telefóny (iPhone SE, staršie Androidy) */
+  @media (max-width: 380px) {
+    header h1 { font-size: 1.9rem; }
+    .toolbar { padding: 10px 8px; }
+    .toolbar .btn { padding: 8px 10px; font-size: 0.68rem; }
+    .gallery {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      padding: 10px 12px 60px;
+    }
+    .plant-card .color-strip { height: 56px; font-size: 1.7rem; }
+    .plant-card .name { font-size: 0.85rem; }
+    .plant-card .latin { font-size: 0.65rem; }
+    .modal { padding: 16px 12px; }
+    .modal h2 { font-size: 1.25rem; }
+    .login-box { padding: 24px 16px; }
+    .login-title { font-size: 1.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN OBRAZOVKA -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="brand-logo">
+      <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-label="Valcova Džungláreň logo">
+        <!-- Vonkajší ozdobný kruh -->
+        <circle cx="60" cy="60" r="56" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.4"/>
+        <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.5"/>
+
+        <!-- Monstera list (centrálny motív) -->
+        <g transform="translate(60 62)">
+          <!-- Stonka -->
+          <path d="M 0 28 Q -1 38 -2 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          <!-- Hlavný list -->
+          <path d="M 0 28
+                   C -22 22, -32 8, -30 -10
+                   C -28 -24, -18 -32, -8 -34
+                   C 0 -36, 8 -34, 14 -28
+                   C 22 -20, 26 -8, 24 6
+                   C 22 18, 12 26, 0 28 Z"
+                fill="currentColor" opacity="0.92"/>
+          <!-- Perforácie (Monstera-style otvory) -->
+          <ellipse cx="-14" cy="-12" rx="3.5" ry="6" fill="var(--paper)" transform="rotate(-25 -14 -12)"/>
+          <ellipse cx="-6" cy="6" rx="3" ry="5" fill="var(--paper)" transform="rotate(-15 -6 6)"/>
+          <ellipse cx="10" cy="-14" rx="3" ry="5" fill="var(--paper)" transform="rotate(20 10 -14)"/>
+          <ellipse cx="14" cy="2" rx="2.5" ry="4" fill="var(--paper)" transform="rotate(35 14 2)"/>
+          <!-- Zárezy okrajov -->
+          <path d="M -30 -10 L -24 -6 M -28 -22 L -22 -16 M -8 -34 L -6 -28 M 14 -28 L 10 -22 M 24 6 L 18 4" stroke="var(--paper)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <!-- Žilnatie -->
+          <path d="M 0 28 L -2 -8 M -2 -8 Q -10 -4 -18 -2 M -2 -8 Q 6 -4 14 0 M -2 -8 Q -8 -16 -16 -22 M -2 -8 Q 4 -16 10 -22" stroke="var(--paper)" stroke-width="0.9" fill="none" opacity="0.6"/>
+        </g>
+
+        <!-- Malé botanické bodky -->
+        <circle cx="60" cy="14" r="1.5" fill="currentColor" opacity="0.5"/>
+        <circle cx="60" cy="106" r="1.5" fill="currentColor" opacity="0.5"/>
+      </svg>
+    </div>
+    <h1 class="login-title"><em>Valcova</em><br>Džungláreň</h1>
+    <div class="login-sub">Rodinná botanická zbierka · est. 2026</div>
+    <form onsubmit="event.preventDefault(); doLogin(); return false;" id="loginForm">
+      <input type="text" id="loginUser" placeholder="Používateľ" autocomplete="username">
+      <input type="password" id="loginPass" placeholder="Heslo" autocomplete="current-password">
+      <button type="submit" class="btn" onclick="event.preventDefault(); doLogin(); return false;">Prihlásiť sa</button>
+      <div class="login-error" id="loginError"></div>
+    </form>
+    <div class="login-help">
+      Nemáš účet? Spýtaj sa záhradníka, ktorý ti džungláreň poslal 🌿
+    </div>
+  </div>
+</div>
+
+<!-- HLAVNÁ APPKA -->
+<div class="main-app" id="mainApp" style="display:none;">
+
+<header>
+  <div class="user-bar">
+    <span id="welcomeMsg">Ahoj!</span>
+    <button class="btn outline" onclick="logout()" style="padding:6px 14px;font-size:0.75rem;">Odhlásiť</button>
+  </div>
+  <div class="header-logo">
+    <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-label="Logo">
+      <circle cx="60" cy="60" r="56" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.4"/>
+      <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.5"/>
+      <g transform="translate(60 62)">
+        <path d="M 0 28 Q -1 38 -2 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M 0 28 C -22 22, -32 8, -30 -10 C -28 -24, -18 -32, -8 -34 C 0 -36, 8 -34, 14 -28 C 22 -20, 26 -8, 24 6 C 22 18, 12 26, 0 28 Z" fill="currentColor" opacity="0.92"/>
+        <ellipse cx="-14" cy="-12" rx="3.5" ry="6" fill="var(--paper)" transform="rotate(-25 -14 -12)"/>
+        <ellipse cx="-6" cy="6" rx="3" ry="5" fill="var(--paper)" transform="rotate(-15 -6 6)"/>
+        <ellipse cx="10" cy="-14" rx="3" ry="5" fill="var(--paper)" transform="rotate(20 10 -14)"/>
+        <ellipse cx="14" cy="2" rx="2.5" ry="4" fill="var(--paper)" transform="rotate(35 14 2)"/>
+        <path d="M -30 -10 L -24 -6 M -28 -22 L -22 -16 M -8 -34 L -6 -28 M 14 -28 L 10 -22 M 24 6 L 18 4" stroke="var(--paper)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      </g>
+    </svg>
+  </div>
+  <div class="subtitle">Rodinná zbierka · est. 2026</div>
+  <h1><em>Valcova</em> Džungláreň</h1>
+  <div class="count" id="count">26 rastlín v zbierke</div>
+</header>
+
+<div class="toolbar">
+  <button class="btn outline" onclick="openHelp()">❓ Pomoc / FAQ</button>
+  <button class="btn" style="background:var(--accent-warm);" onclick="openShareFavs()">💌 Napísať Kráľovi Džungle</button>
+  <button class="btn outline" id="btnAddPlant" onclick="addNewPlant()" style="display:none;">+ Pridať rastlinu</button>
+  <button class="btn outline" onclick="exportFavsPDF()">⬇ Stiahnuť moje rastliny (PDF)</button>
+  <button class="btn outline" id="btnImport" onclick="importData()" style="display:none;">⬆ Import</button>
+  <input type="file" id="importFile" accept="application/json" style="display:none" onchange="handleImport(event)">
+  <button class="btn outline danger" onclick="resetFavs()">↺ Vymazať obľúbené</button>
+  <button class="btn outline danger" id="btnReset" onclick="resetData()" style="display:none;">🗑 Reset DB</button>
+</div>
+
+<div class="filter-bar" id="filterBar"></div>
+
+<div class="gallery" id="gallery"></div>
+
+<!-- SHARE FAVS MODAL -->
+<div class="modal-backdrop" id="shareFavsModal" onclick="if(event.target===this) closeShareFavs()">
+  <div class="modal" style="max-width:560px;">
+    <button class="modal-close" onclick="closeShareFavs()">✕</button>
+    <h2>💌 Napísať Kráľovi Džungle</h2>
+    <em>Skopíruj text a pošli ho mailom na KralDzungleValcoApp@gmail.com</em>
+
+    <div class="share-banner">
+      <div class="cb-icon">🌵</div>
+      <div class="cb-content">
+        <div class="cb-title">Ako to funguje:</div>
+        <div class="cb-text">1. Uprav text nižšie (otázky, novinky, fotky popíš slovne)<br>2. Klikni 📋 Kopírovať<br>3. Otvor mail, adresát: <b>KralDzungleValcoApp@gmail.com</b><br>4. Vlož text a odošli</div>
+      </div>
+    </div>
+
+    <div style="margin:16px 0 6px;font-weight:600;font-size:0.9rem;">📝 Tvoja správa:</div>
+    <textarea id="shareMailBody" style="width:100%;min-height:280px;padding:14px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:0.85rem;background:var(--paper);line-height:1.65;resize:vertical;"></textarea>
+
+    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+      <button class="btn" style="background:var(--accent-warm);" onclick="copyShareText()">📋 Kopírovať správu</button>
+      <button class="btn outline" onclick="generateMailText()">🔄 Obnov text</button>
+    </div>
+  </div>
+</div>
+
+<!-- HELP / FAQ MODAL -->
+<div class="modal-backdrop" id="helpModal" onclick="if(event.target===this) closeHelp()">
+  <div class="modal" style="max-width:800px;">
+    <button class="modal-close" onclick="closeHelp()">✕</button>
+    <h2>❓ Pomoc & FAQ</h2>
+    <em>Ako appka funguje + tipy pre rodinu</em>
+
+    <div class="id-tabs" style="margin-top:24px;">
+      <button class="id-tab active" data-htab="user" onclick="switchHelpTab('user')">👨‍👩‍👧 Pre rodinu</button>
+      <button class="id-tab" data-htab="admin" onclick="switchHelpTab('admin')">🔧 Pre admina</button>
+      <button class="id-tab" data-htab="legend" onclick="switchHelpTab('legend')">🔣 Legenda</button>
+    </div>
+
+    <!-- USER TAB -->
+    <div class="help-pane active" id="help-user">
+      <div class="contact-banner">
+        <div class="cb-icon">🌿</div>
+        <div class="cb-content">
+          <div class="cb-title">Máš novú rastlinu? Daj vedieť adminovi!</div>
+          <div class="cb-text">Pošli fotku rastliny + krátky popis (kde si ju kúpila, ako ju voláš) na e-mail. Admin (Valco) ju pridá do databázy s kompletnou starostlivosťou.</div>
+          <a class="cb-mail" href="mailto:KralDzungleValcoApp@gmail.com?subject=Nová rastlina do databázy 🌿&body=Ahoj! Posielam ti fotku rastliny:%0D%0A%0D%0AMeno (ak vieš): %0D%0AKde som ju kúpila: %0D%0AKedy: %0D%0AĎalšie info: %0D%0A%0D%0AĎakujem!">📧 KralDzungleValcoApp@gmail.com</a>
+        </div>
+      </div>
+
+      <details class="faq" open>
+        <summary>🌿 Čo je to za appku?</summary>
+        <div class="faq-body">Valcova Džungláreň je rodinná botanická appka. Máme spoločnú zbierku 26+ rastlín a každý člen rodiny si môže označiť svoje obľúbené. Príbuzní sa môžu inšpirovať čo má kto doma.</div>
+      </details>
+
+      <details class="faq">
+        <summary>❤️ Ako si pridám rastlinu medzi obľúbené?</summary>
+        <div class="faq-body">Klikni na <b>biele srdiečko 🤍 v ľavom hornom rohu</b> každej kartičky rastliny. Zmení sa na červené ❤️. Toto sa ukladá iba pre tvoj účet – ostatní v rodine vidia svoje obľúbené, ale tiež vidia kto má čo (na karte sú malé štítky s menami).</div>
+      </details>
+
+      <details class="faq">
+        <summary>🔍 Ako nájdem rastlinu zo zbierky?</summary>
+        <div class="faq-body">Hore máš filter: <b>Všetky / Moje / Norika / Martin...</b> – klikom si vyfiltruj. Tlačidlo <b>📷 Identifikovať fotku</b> ti pomôže nájsť konkrétny druh – buď ti Claude pomôže (ak máš Pro), alebo si vyberieš ručne v zozname po kategóriách.</div>
+      </details>
+
+      <details class="faq">
+        <summary>🖨 Ako vytlačím štítok do kvetináča?</summary>
+        <div class="faq-body">Otvor rastlinu (klik na kartičku) → tlačidlo <b>🖨 Tlačiť štítok + kartu</b>. Vytlačí sa malý štítok 5×8 cm na paličku do zeme + obojstranná A6 karta s detailmi. Najlepšie tlačiť na hrubší papier alebo zalaminovať proti vode.</div>
+      </details>
+
+      <details class="faq">
+        <summary>🔍 Ako overím, že je to fakt tá rastlina?</summary>
+        <div class="faq-body">V detaile rastliny máš pod latinským názvom 4 odkazy: <b>🖼 Google obrázky</b>, <b>🇸🇰 Slovenské obrázky</b>, <b>🔍 Google info</b>, <b>📖 Wikipedia</b>. Klikni a porovnaj svoju rastlinu s fotkami.</div>
+      </details>
+
+      <details class="faq">
+        <summary>💧 Čo znamenajú ikonky vody (💧 / 💧💧 / 💧💧💧)?</summary>
+        <div class="faq-body"><b>💧</b> = nenáročná – znesie kohútikovú vodu<br><b>💧💧</b> = chce odstátu kohútikovú aspoň 24 h<br><b>💧💧💧</b> = "Voda Nazi" – iba destilovaná alebo dažďová!</div>
+      </details>
+
+      <details class="faq">
+        <summary>🐕 Mám psa – ktoré sú nebezpečné?</summary>
+        <div class="faq-body">Rastliny s <b>červenou bodkou</b> v rohu kartičky sú jedovaté. V detaile máš podrobnosti na zadnej strane karty. <b>Hosta, Adenium, Jatropha, Begónie, Pothos, Monstera, Sansevieria a ZZ Plant</b> sú jedovaté – maj ich mimo dosahu psa.</div>
+      </details>
+
+      <details class="faq">
+        <summary>💌 Ako pošlem fotku novej rastliny adminovi?</summary>
+        <div class="faq-body">
+          Klikni na tlačidlo <b>💌 Napísať Kráľovi</b> v toolbare.
+          Otvorí sa okno s predvyplnenou správou – tvoje obľúbené sú tam automaticky zahrnuté.
+          Môžeš pridať ľubovoľný text alebo otázky.
+          Potom klikni <b>📧 Otvoriť v Mail</b> alebo skopíruj text a pošli z ľubovoľného mailu.
+          <br><br>
+          <b>Fotky rastlín:</b> Tie musíš pripojiť manuálne ako prílohu – prehliadač to z bezpečnostných dôvodov neumožňuje automaticky.
+        </div>
+      </details>
+
+      <details class="faq">
+        <summary>💾 Ako si zachovám obľúbené keď zmením zariadenie?</summary>
+        <div class="faq-body">
+          Obľúbené sú uložené iba v <b>tvojom prehliadači</b> na tvojom zariadení.
+          Ak chceš preniesť obľúbené na iné zariadenie:
+          <ol>
+            <li>Klikni <b>💌 Napísať Kráľovi</b> – text správy obsahuje tvoje obľúbené aj ako JSON dáta</li>
+            <li>Skopíruj celý text správy</li>
+            <li>Na novom zariadení popros admina (Valco) o import, alebo vlož text do správy a on obnoví</li>
+          </ol>
+          Prípadne: admin ti môže poslať JSON súbor ktorý importuješ cez <b>⬆ Import</b>.
+        </div>
+      </details>
+
+      <details class="faq">
+        <summary>🔐 Stratil/a som heslo</summary>
+        <div class="faq-body">Spýtaj sa Valca (admin) – pošle ti ho. Heslá sú zoznam ktorý drží admin, nie sú v appke.</div>
+      </details>
+    </div>
+
+    <!-- ADMIN TAB -->
+    <div class="help-pane" id="help-admin">
+      <div class="admin-banner">
+        <div class="cb-icon">🌵</div>
+        <div class="cb-content">
+          <div class="cb-title">Si Valco, Kráľ Džungle a admin tejto appky</div>
+          <div class="cb-text">Tvoja úloha: spravovať databázu rastlín. Rodina ti posiela fotky na <b>KralDzungleValcoApp@gmail.com</b> a ty cez Claude projekt pridávaš nové rastliny do appky.</div>
+        </div>
+      </div>
+
+      <details class="faq" open>
+        <summary>📥 Ako spracujem správu od rodiny?</summary>
+        <div class="faq-body">
+          <b>A) Fotky nových rastlín:</b>
+          <ol>
+            <li>Stiahni fotku z mailu</li>
+            <li>Otvor <b>Claude.ai → projekt "Valcova Džungláreň 🌿"</b></li>
+            <li>Pripoj fotku + napíš: <i>"Identifikuj rastlinu a vyrob mi JSON pre import."</i></li>
+            <li>Claude ti vráti súbor <code>{"addPlant": {...}}</code></li>
+            <li>V appke klik <b>⬆ Import</b> → vyber súbor → hotovo</li>
+          </ol>
+          <b>B) Obľúbené od člena rodiny (riadok FAVS_JSON v maili):</b>
+          <ol>
+            <li>Skopíruj zo správy JSON za <code>[FAVS_JSON:</code> až po <code>]</code></li>
+            <li>Vlož do súboru <code>favs-[meno-clen].json</code> vo formáte: <code>{"favs": ["p1","p3"],"user":"[meno-clena]"}</code></li>
+            <li>V appke prihláś sa ako ten člen + klik <b>⬆ Import</b> → vyber súbor</li>
+          </ol>
+        </div>
+      </details>
+
+      <details class="faq">
+        <summary>✏ Ako upravím existujúcu rastlinu?</summary>
+        <div class="faq-body">Klik na rastlinu → <b>✏ Upraviť údaje</b>. Môžeš zmeniť všetko: názov, sezónny kalendár, tipy, problémy, atď. Zmena platí pre celú rodinu (zdieľaná databáza).</div>
+      </details>
+
+      <details class="faq">
+        <summary>💾 Ako urobím zálohu databázy?</summary>
+        <div class="faq-body">Tlačidlo <b>⬇ Export</b> stiahne JSON so všetkými rastlinami. Odporúčam zálohovať raz za mesiac na Google Drive / iCloud. Ak by sa appka pokazila, použiješ <b>⬆ Import</b> a vrátiš sa.</div>
+      </details>
+
+      <details class="faq">
+        <summary>↺ Čo robí Reset?</summary>
+        <div class="faq-body"><b>POZOR:</b> Vráti databázu na pôvodných 26 rastlín z code-u. Stratíš všetky pridané rastliny, úpravy a poznámky! Preto vždy najprv urob Export, potom Reset.</div>
+      </details>
+
+      <details class="faq">
+        <summary>👤 Ako pridám nový účet pre rodinu?</summary>
+        <div class="faq-body">Účty sú napevno v kóde appky (10 účtov). Ak chceš pridať/zmeniť, otvor HTML súbor v editore, nájdi <code>const ACCOUNTS = [...]</code> a uprav. Potom prepublishni cez Claude alebo nahraj na GitHub Pages.</div>
+      </details>
+
+      <details class="faq">
+        <summary>🌐 Ako appku zdieľam s rodinou?</summary>
+        <div class="faq-body">Najlepšie: GitHub Pages (zadarmo, navždy, vlastný link). Alebo Claude.ai Publish (Anyone with link). Po zmene v appke musíš znova upload/publish – rodina dostane nové funkcie len keď otvoria nový link.</div>
+      </details>
+
+      <details class="faq">
+        <summary>📊 Kde sú dáta uložené?</summary>
+        <div class="faq-body">V <b>localStorage</b> každého prehliadača. Každý člen rodiny má vlastnú kópiu na svojom zariadení. <b>To znamená že keď ty pridáš rastlinu, ostatní ju neuvidia automaticky</b> – musí im príjsť aktualizovaný HTML alebo si oni manuálne importnú JSON.</div>
+      </details>
+    </div>
+
+    <!-- LEGEND TAB -->
+    <div class="help-pane" id="help-legend">
+      <h4 style="font-family:Fraunces,serif;margin:16px 0 10px;">🌱 Ikonky rastlín</h4>
+      <div class="legend-grid">
+        <div class="lg-item"><span class="lg-emo">🍃</span><div>Lezúce s perforovanými listami<br><em>Monstera, Rhaphidophora</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🌿</span><div>Lezúce s celistvými listami<br><em>Pothos, Callisia</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🌱</span><div>Vzorované široké listy<br><em>Calathea, Maranta, Begonia</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🪴</span><div>Trávovité úzke listy<br><em>Chlorophytum (zelenec)</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🎋</span><div>Vysoké štíhle s rozetami<br><em>Dracaena, Chamaedorea</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🗡️</span><div>Mečovité tuhé listy<br><em>Sansevieria</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🌵</span><div>Klasický kaktus<br><em>Kaktusy zbierka</em></div></div>
+        <div class="lg-item"><span class="lg-emo">💚</span><div>Lesný visiaci kaktus<br><em>Rhipsalis</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🪷</span><div>Rozetový sukulent<br><em>Echeveria, Crassula</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🌳</span><div>Drevitý kmeň s kaudexom<br><em>Adenium, Jatropha</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🍋</span><div>Citrus<br><em>Calamondin</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🥀</span><div>Mäsožravka s pascami<br><em>Sarracenia</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🌾</span><div>Papraď<br><em>Nephrolepis</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🌺</span><div>Veľké lupene<br><em>Hosta</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🟢</span><div>Tučné mäsité listy<br><em>ZZ Plant</em></div></div>
+      </div>
+
+      <h4 style="font-family:Fraunces,serif;margin:24px 0 10px;">💧 Ikonky vody</h4>
+      <div class="legend-grid">
+        <div class="lg-item"><span class="lg-emo">💧</span><div><b>Nenáročná</b><br><em>Kohútiková voda OK</em></div></div>
+        <div class="lg-item"><span class="lg-emo">💧💧</span><div><b>Odstátá</b><br><em>Aspoň 24h v kanvici</em></div></div>
+        <div class="lg-item"><span class="lg-emo">💧💧💧</span><div><b>Voda Nazi</b><br><em>Iba destilovaná / dažďová</em></div></div>
+      </div>
+
+      <h4 style="font-family:Fraunces,serif;margin:24px 0 10px;">☀️ Ikonky svetla</h4>
+      <div class="legend-grid">
+        <div class="lg-item"><span class="lg-emo">☀️☀️</span><div><b>Priame slnko 6+ h</b><br><em>Južný parapet</em></div></div>
+        <div class="lg-item"><span class="lg-emo">☀️</span><div><b>Priame slnko 2–4 h</b><br><em>Východný/západný</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🌤</span><div><b>Jasné rozptýlené</b><br><em>Severný parapet</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🌥</span><div><b>Stredné svetlo</b><br><em>1–2 m od okna</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🌚</span><div><b>Slabé / tieň</b><br><em>>3 m od okna</em></div></div>
+      </div>
+
+      <h4 style="font-family:Fraunces,serif;margin:24px 0 10px;">📍 Vzdialenosť od okna</h4>
+      <div class="legend-grid">
+        <div class="lg-item"><span class="lg-emo">🪟</span><div><b>Parapet</b></div></div>
+        <div class="lg-item"><span class="lg-emo">↔️</span><div><b>Do 1 m</b></div></div>
+        <div class="lg-item"><span class="lg-emo">📏</span><div><b>1–3 m</b></div></div>
+        <div class="lg-item"><span class="lg-emo">🚪</span><div><b>>3 m / za rohom</b></div></div>
+      </div>
+
+      <h4 style="font-family:Fraunces,serif;margin:24px 0 10px;">💡 Eco tipy & triky (suroviny)</h4>
+      <div style="font-size:0.78rem;color:var(--ink-soft);margin-bottom:10px;line-height:1.45;">
+        Surovina + krátke pravidlo. <b>Vždy si overuj v karte konkrétnej rastliny</b> – každá má iné požiadavky.
+      </div>
+      <div class="legend-grid">
+        <div class="lg-item"><span class="lg-emo">🍌</span><div><b>Banán (voda zo šupiek)</b><br><em>Draslík → kvety, listy</em></div></div>
+        <div class="lg-item"><span class="lg-emo">☕</span><div><b>Káva (zvyšky / lúh)</b><br><em>Dusík + kyslé pH</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🍵</span><div><b>Vystátý čaj</b><br><em>Mierne kyslé pH</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🥚</span><div><b>Vaječné škrupiny mleté</b><br><em>Vápnik – pri presádzaní</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🪵</span><div><b>Škorica</b><br><em>Antifungálne pri rezkoch</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🌧</span><div><b>Dažďovka</b><br><em>Bez chlóru/fluóru</em></div></div>
+        <div class="lg-item"><span class="lg-emo">❄️</span><div><b>Topiaci sa sneh</b><br><em>Ako dažďovka, čistá</em></div></div>
+        <div class="lg-item"><span class="lg-emo">💧</span><div><b>Destilovaná voda</b><br><em>Pre citlivé rastliny</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🪨</span><div><b>Keramzit / drť</b><br><em>Drenáž, prevencia hniloby</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🐟</span><div><b>Akváriová voda</b><br><em>Top hnojivo zadarmo</em></div></div>
+      </div>
+
+      <h4 style="font-family:Fraunces,serif;margin:24px 0 10px;">✅ Verdikty na štítku</h4>
+      <div class="legend-grid">
+        <div class="lg-item"><span class="lg-emo" style="color:#2a5a2a;">★</span><div><b style="color:#2a5a2a;">ÁNO ★</b><br><em>Výborne pre rastlinu</em></div></div>
+        <div class="lg-item"><span class="lg-emo" style="color:#2a5a2a;">✓</span><div><b style="color:#2a5a2a;">ÁNO, [frekvencia]</b><br><em>Dávaj pravidelne</em></div></div>
+        <div class="lg-item"><span class="lg-emo" style="color:#5a5a2a;">~</span><div><b style="color:#5a5a2a;">občas</b><br><em>Mierne, riedené</em></div></div>
+        <div class="lg-item"><span class="lg-emo" style="color:#8b6314;">!</span><div><b style="color:#8b6314;">! pri presádzaní</b><br><em>Iba do substrátu</em></div></div>
+        <div class="lg-item"><span class="lg-emo" style="color:#8b2a2a;">✕</span><div><b style="color:#8b2a2a;">NIE</b><br><em>Škodí rastline</em></div></div>
+      </div>
+
+      <h4 style="font-family:Fraunces,serif;margin:24px 0 10px;">⚠️ Ďalšie symboly</h4>
+      <div class="legend-grid">
+        <div class="lg-item"><span class="lg-emo">🔴</span><div><b>Červená bodka</b><br><em>Jedovatá pre psa</em></div></div>
+        <div class="lg-item"><span class="lg-emo">❤️</span><div><b>Srdiečko</b><br><em>Tvoje obľúbené</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🌬</span><div><b>Vetrík</b><br><em>Čistí vzduch (NASA)</em></div></div>
+        <div class="lg-item"><span class="lg-emo">🪴</span><div><b>Kvetináč</b><br><em>Samozavlažovač</em></div></div>
+        <div class="lg-item"><span class="lg-emo">💦</span><div><b>Kropenie áno</b></div></div>
+        <div class="lg-item"><span class="lg-emo">🚫</span><div><b>Kropenie nie</b></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modal" onclick="if(event.target===this) closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2 id="modalName"></h2>
+    <em id="modalLatin"></em>
+    <div class="check-links" id="checkLinks"></div>
+
+    <div class="modal-actions">
+      <button class="btn" id="modalFavBtn" onclick="toggleFavModal()">🤍 Pridať k obľúbeným</button>
+      <button class="btn outline" onclick="printCurrent()">🖨 Tlačiť štítok + kartu</button>
+      <button class="btn outline" id="btnEdit" onclick="toggleEditor()" style="display:none;">✏ Upraviť údaje</button>
+      <button class="btn outline danger" id="btnDelete" onclick="deletePlant()" style="display:none;">🗑 Zmazať</button>
+    </div>
+
+    <div class="preview-wrap">
+      <div>
+        <div class="label">Štítok 5×8 cm — predok + zadok (obojstranne nalepiť)</div>
+        <div id="stitokPreview"></div>
+      </div>
+      <div>
+        <div class="label">Karta A6 — na kvetináč</div>
+        <div id="kartaPreview"></div>
+      </div>
+    </div>
+
+    <!-- EDITOR -->
+    <div class="editor" id="editor">
+      <h3>Upraviť údaje rastliny</h3>
+      <div class="grid">
+        <div class="field"><label>Názov</label><input id="ed-name"></div>
+        <div class="field"><label>Latinský názov</label><input id="ed-latin"></div>
+        <div class="field"><label>Kategória</label>
+          <select id="ed-category">
+            <option value="tropical">Tropická</option>
+            <option value="succulent">Sukulent / kaktus</option>
+            <option value="desert">Púštna</option>
+            <option value="citrus">Citrus</option>
+            <option value="foliage">Listová izbovka</option>
+            <option value="carnivore">Mäsožravka</option>
+            <option value="flower">Kvitnúca</option>
+          </select>
+        </div>
+        <div class="field"><label>Ikona (emoji)</label><input id="ed-emoji" maxlength="4"></div>
+        <div class="field"><label>Typ vody</label>
+          <select id="ed-water">
+            <option value="nazi">💧💧💧 Voda Nazi</option>
+            <option value="settled">💧💧 Odstátá</option>
+            <option value="easy">💧 Nenáročný vodník</option>
+          </select>
+        </div>
+        <div class="field"><label>Zálievka leto</label><input id="ed-water-summer" placeholder="napr. 1× týždeň"></div>
+        <div class="field"><label>Zálievka zima</label><input id="ed-water-winter" placeholder="napr. 1× za 2 týždne"></div>
+        <div class="field"><label>Spôsob zalievania</label>
+          <select id="ed-method">
+            <option value="top">Zhora na zem</option>
+            <option value="tray">Do podmisky</option>
+            <option value="soak">Namáčanie celého kvetináča</option>
+            <option value="selfw">Iba samozavlažovač</option>
+            <option value="spray">Rosenie / sprejovanie</option>
+          </select>
+        </div>
+        <div class="field"><label>☀️ Intenzita svetla</label>
+          <select id="ed-lightLevel">
+            <option value="">— vyber —</option>
+            <option value="5_direct_long">☀️☀️ Priame slnko 6+ h denne</option>
+            <option value="4_direct_short">☀️ Priame slnko 2–4 h denne</option>
+            <option value="3_bright">🌤 Jasné rozptýlené svetlo</option>
+            <option value="2_medium">🌥 Stredné svetlo</option>
+            <option value="1_low">🌚 Slabé svetlo / tieň</option>
+          </select>
+        </div>
+        <div class="field"><label>📍 Vzdialenosť od okna</label>
+          <select id="ed-distance">
+            <option value="">— vyber —</option>
+            <option value="parapet">🪟 Parapet (priamo na okne)</option>
+            <option value="near">↔️ Do 1 m od okna</option>
+            <option value="mid">📏 1–3 m od okna</option>
+            <option value="far">🚪 >3 m / za rohom</option>
+          </select>
+        </div>
+        <div class="field" style="grid-column:1/-1"><label>🌍 Konkrétne odporúčanie pre umiestnenie</label><textarea id="ed-lightAdvice" placeholder="napr. Východný/severný parapet alebo 30 cm od slnečného okna..."></textarea></div>
+        <!-- Legacy svetlo (pre spätnú kompatibilitu, skryté ak chceme) -->
+        <div class="field" style="display:none;"><label>Legacy location</label>
+          <select id="ed-location">
+            <option value="parapet">parapet</option>
+            <option value="near">near</option>
+            <option value="shade">shade</option>
+          </select>
+        </div>
+        <div class="field"><label>Samozavlažovač</label>
+          <select id="ed-self">
+            <option value="none">Nie</option>
+            <option value="small">Áno – malý kolík</option>
+            <option value="big">Áno – veľký kolík</option>
+          </select>
+        </div>
+        <div class="field"><label>Hnojenie leto</label><input id="ed-fert-summer" placeholder="napr. 1× za 2 týždne"></div>
+        <div class="field"><label>Hnojenie zima</label><input id="ed-fert-winter" placeholder="napr. nehnojiť"></div>
+        <div class="field"><label>Kropenie</label><input id="ed-mist" placeholder="napr. 2× týždeň"></div>
+        <div class="field"><label>Substrát</label><input id="ed-soil" placeholder="napr. univerzálny + perlit 3:1"></div>
+        <div class="field" style="grid-column:1/-1"><label>Presádzanie</label><input id="ed-repot" placeholder="napr. 1× za 2 roky na jar"></div>
+        <div class="field"><label>🌡️ Teplota</label><input id="ed-temp" placeholder="napr. 18–24 °C"></div>
+        <div class="field"><label>💨 Vlhkosť</label><input id="ed-humid" placeholder="napr. 60–70 %"></div>
+        <div class="field" style="grid-column:1/-1"><label>☀️ Svetlo</label><input id="ed-light" placeholder="napr. jasné rozptýlené, bez priameho slnka"></div>
+        <div class="field"><label>🌱 Jar</label><textarea id="ed-spring"></textarea></div>
+        <div class="field"><label>☀️ Leto</label><textarea id="ed-summer"></textarea></div>
+        <div class="field"><label>🍂 Jeseň</label><textarea id="ed-autumn"></textarea></div>
+        <div class="field"><label>❄️ Zima</label><textarea id="ed-winter"></textarea></div>
+        <div class="field" style="grid-column:1/-1"><label>🌿 Množenie</label><textarea id="ed-propagation"></textarea></div>
+        <div class="field" style="grid-column:1/-1"><label>⚠️ Časté problémy</label><textarea id="ed-problems"></textarea></div>
+        <div class="field" style="grid-column:1/-1"><label>💡 Eco tipy & triky (banán, škorica, káva...)</label><textarea id="ed-tips" placeholder="napr. 🍌 Banánová voda 1× za 2 týždne. ☕ Káva NIE..."></textarea></div>
+        <div class="field" style="grid-column:1/-1"><label>🌬 Čistenie vzduchu – detail (NASA štúdia)</label><textarea id="ed-airDetail" placeholder="napr. TESTOVANÁ NASA (1989). Odstraňuje formaldehyd, benzén..."></textarea></div>
+        <div class="field" style="grid-column:1/-1"><label>Čo má rád</label><textarea id="ed-likes"></textarea></div>
+        <div class="field" style="grid-column:1/-1"><label>Pozor / špeciality</label><textarea id="ed-warn"></textarea></div>
+        <div class="field"><label>Jedovatý pre psa</label>
+          <select id="ed-toxic"><option value="false">Nie</option><option value="true">Áno</option></select>
+        </div>
+        <div class="field"><label>Čistí vzduch</label>
+          <select id="ed-air"><option value="false">Nie</option><option value="true">Áno</option></select>
+        </div>
+      </div>
+      <div style="margin-top:18px; display:flex; gap:8px;">
+        <button class="btn" onclick="saveEdit()">💾 Uložiť</button>
+        <button class="btn outline" onclick="toggleEditor()">Zrušiť</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRINT AREA -->
+<div class="print-area" id="printArea"></div>
+
+<div class="toast" id="toast"></div>
+
+</div><!-- /main-app -->
+
+<script>
+// ============ KATEGÓRIE & FARBY ============
+const CATEGORIES = {
+  tropical:  { label: 'Tropická',     color: 'var(--cat-tropical)',  bg: 'var(--cat-tropical-bg)' },
+  succulent: { label: 'Sukulent',     color: 'var(--cat-succulent)', bg: 'var(--cat-succulent-bg)' },
+  desert:    { label: 'Púštna',       color: 'var(--cat-desert)',    bg: 'var(--cat-desert-bg)' },
+  citrus:    { label: 'Citrus',       color: 'var(--cat-citrus)',    bg: 'var(--cat-citrus-bg)' },
+  foliage:   { label: 'Listová',      color: 'var(--cat-foliage)',   bg: 'var(--cat-foliage-bg)' },
+  carnivore: { label: 'Mäsožravka',   color: 'var(--cat-carnivore)', bg: 'var(--cat-carnivore-bg)' },
+  flower:    { label: 'Kvitnúca',     color: 'var(--cat-flower)',    bg: 'var(--cat-flower-bg)' }
+};
+const WATER_LABEL = {
+  nazi:    { icons: '💧💧💧', text: 'Voda Nazi (destilovaná)' },
+  settled: { icons: '💧💧',   text: 'Odstátá voda' },
+  easy:    { icons: '💧',     text: 'Nenáročný vodník' }
+};
+// SVETLO – 2 osi (intenzita + vzdialenosť od okna)
+const LIGHT_LEVELS = {
+  '5_direct_long':  { icon: '☀️☀️', short: 'Priame slnko 6+ h', long: 'Priame slnko 6+ hodín denne (južný parapet)' },
+  '4_direct_short': { icon: '☀️',   short: 'Priame slnko 2–4 h', long: 'Priame slnko 2–4 hodiny denne (východný/západný parapet)' },
+  '3_bright':       { icon: '🌤',   short: 'Jasné rozptýlené', long: 'Jasné rozptýlené svetlo (severný parapet, alebo 30–60 cm od slnečného okna)' },
+  '2_medium':       { icon: '🌥',   short: 'Stredné svetlo', long: 'Stredné svetlo, 1–2 m od okna (jasná izba ale nie pri okne)' },
+  '1_low':          { icon: '🌚',   short: 'Slabé svetlo / tieň', long: 'Slabé svetlo až tieň (>3 m od okna, alebo za rohom)' }
+};
+const DISTANCE_LABEL = {
+  parapet: { icon: '🪟', short: 'Parapet', long: 'Priamo na parapete' },
+  near:    { icon: '↔️', short: '<1 m od okna', long: 'Do 1 m od okna' },
+  mid:     { icon: '📏', short: '1–3 m od okna', long: 'V strede izby, 1–3 m od okna' },
+  far:     { icon: '🚪', short: 'Ďaleko / za rohom', long: 'Viac než 3 m od okna alebo za rohom' }
+};
+
+// Helper: vráti label pre rastlinu (nový formát alebo legacy fallback)
+function getLightShort(p) {
+  if (p.lightLevel && LIGHT_LEVELS[p.lightLevel]) {
+    const l = LIGHT_LEVELS[p.lightLevel];
+    return l.icon + ' ' + l.short;
+  }
+  return LOC_SHORT[p.location] || '';
+}
+function getLightIcon(p) {
+  if (p.lightLevel && LIGHT_LEVELS[p.lightLevel]) return LIGHT_LEVELS[p.lightLevel].icon;
+  return '☀️';
+}
+function getLightLong(p) {
+  if (p.lightLevel && LIGHT_LEVELS[p.lightLevel]) return LIGHT_LEVELS[p.lightLevel].long;
+  return LOC_LABEL[p.location] || '';
+}
+function getDistanceShort(p) {
+  if (p.distance && DISTANCE_LABEL[p.distance]) {
+    return DISTANCE_LABEL[p.distance].icon + ' ' + DISTANCE_LABEL[p.distance].short;
+  }
+  return '';
+}
+
+// Legacy fallback
+const LOC_LABEL = {
+  parapet: '☀️ Plné slnko / parapet',
+  near:    '🌤 Rozptýlené svetlo',
+  shade:   '🌥 Polotieň / tieň'
+};
+const LOC_SHORT = {
+  parapet: '☀️ Plné slnko',
+  near:    '🌤 Rozptýlené',
+  shade:   '🌥 Polotieň'
+};
+const SELF_LABEL = {
+  none:  'Nie',
+  small: 'Áno · malý kolík',
+  big:   'Áno · veľký kolík'
+};
+
+// ============ KOMPLETNÉ DÁTA – 26 rastlín, profesionálne ============
+const DEFAULT_PLANTS = [
+  { id:'p1', name:'Calathea warscewiczii', latin:'Goeppertia warscewiczii', category:'tropical', emoji:'🌱',
+    temp:'18–24 °C (min. 15 °C)', humid:'60–70 % (min. 50 %)', light:'Jasné rozptýlené, NIKDY priame slnko – fadne vzor',
+    location:'near', water:'nazi', method:'top',
+    lightLevel:'3_bright', distance:'near', lightAdvice:`Východný/severný parapet alebo 30 cm od slnečného okna. NIKDY priame slnko – fadne nádherný vzor. Polotieň znesie ale rast spomalí.`,
+    tips:`🍌 Banánová voda 1× za 2 týždne (draslík pre listy). 🍵 Vystátý čierny čaj (mierne kyslý, pH ideálne). ❄️ Topiaci sa sneh / dažďová voda v lete – luxus pre ňu. 🥚 NEDÁVAJ vápnik (škrupinky) – prefere kyslé prostredie. ☕ Káva NIE.`,
+    airDetail:`NETESTOVANÁ v NASA štúdii. Ako tropická rastlina prispieva k vlhkosti vzduchu cez transpiráciu (cca 90% prijatej vody vydáva späť), znižuje CO₂. Žiadny špecifický VOC efekt nie je preukázaný.`,
+    waterSummer:'1× týždeň, hĺbková zálievka, vždy keď horný 2–3 cm vyschne', waterWinter:'1× za 10–14 dní, menej',
+    self:'small', mist:'Nemísiť priamo na listy (huby) – radšej zvlhčovač',
+    fertSummer:'1× za 2 týždne, vyvážené tekuté hnojivo zriedené na 1/4 sily', fertWinter:'Nehnojiť (Nov–Feb)',
+    soil:'Univerzálny + rašelina + perlit (3:2:1)', repot:'1× za 1–2 roky na jar, len do snug nádoby',
+    spring:'Presadiť ak root-bound. Naštartovať hnojenie. Zvýšiť zálievku.',
+    summer:'Hĺbková zálievka destilovanou. Zvlhčovač denne – cieľ 60%+. Pavúkovce v suchu.',
+    autumn:'Postupne znížiť zálievku. Posledné hnojenie v septembri.',
+    winter:'Drž teplo (>15 °C), ďalej od chladných okien a radiátorov. Zvlhčovač POVINNÝ kvôli kúreniu.',
+    propagation:'Rozdelením trsu pri jarnom presádzaní. Každá časť musí mať vlastné korene a 2–3 listy. Pod fóliou 2–3 týždne pre vlhkosť.',
+    problems:'Hnedé špičky = chlór alebo nízka vlhkosť → destilovaná + zvlhčovač. Stáčanie = sucho. Žltnutie = preliatie. Bledá farba = málo svetla.',
+    likes:'Tropický prales pod baldachýnom – teplo, vlhko, tieň. Listy sa večer zdvíhajú.',
+    warn:'Veľmi citlivá na chlór, fluór, soli – preto destilovaná. Bezpečná pre psy ✓.',
+    toxic:false, air:true },
+
+  { id:'p2', name:'Monstera deliciosa', latin:'Monstera deliciosa', category:'tropical', emoji:'🍃',
+    temp:'18–27 °C (min. 13 °C)', humid:'50–60 % (znesie 40 %)', light:'Jasné rozptýlené, ráno znesie priame slnko',
+    location:'near', water:'settled', method:'top',
+    lightLevel:'3_bright', distance:'near', lightAdvice:`Východné okno alebo 1 m od južného. Ráno znesie 1–2 h priame slnko. V tieni rastie pomaly a listy budú menšie bez perforácií.`,
+    tips:`🍌 Banánová voda 1× mesačne výborne (draslík = väčšie listy s perforáciami). 🥚 Mleté škrupinky vajec do substrátu pri presádzaní (vápnik). 🍵 Zvyšný čaj OK. ☕ Riedená káva (1:4) občas pomôže. 🌿 Listy utrieť mlieko-voda 1:10 → lesk + odstráni prach.`,
+    airDetail:`NETESTOVANÁ v NASA štúdii. Veľkolisté rastliny (ako Monstera) zvyšujú vlhkosť vzduchu cez transpiráciu. Príbuzná Philodendron preukázala odstraňovanie formaldehydu.`,
+    waterSummer:'1× týždeň, keď top 2–3 cm vyschne', waterWinter:'1× za 10–14 dní',
+    self:'big', mist:'Občas, hlavne v zime kvôli kúreniu',
+    fertSummer:'1× za 3–4 týždne, vyvážené', fertWinter:'Nehnojiť',
+    soil:'Univerzálny + perlit + orchideová kôra (2:1:1)', repot:'1× za 2 roky na jar',
+    spring:'Presadiť do väčšieho. Pridať mossstick / oporu. Naštartovať hnojenie.',
+    summer:'Najrýchlejší rast – nové listy s perforáciami. Otáčať pre rovnomerný rast.',
+    autumn:'Znížiť hnojenie a zálievku. Vyčistiť listy od prachu.',
+    winter:'Pomalšie rastie. Drž ďalej od studených prievanov. Nepreliať!',
+    propagation:'Stoplíkové rezky cez nodál (uzol s vzdušným koreňom). Do vody alebo sphagnum machu, korene 3–6 týždňov.',
+    problems:'Žlté listy = preliatie. Hnedé okraje = sucho. Bez perforácií = málo svetla alebo mladá. Plačúce listy = preliatie.',
+    likes:'Lezie po stromoch v amazonskom pralese – obľubuje opory, vlhkosť, teplo.',
+    warn:'JEDOVATÁ pre psy aj mačky (kalciumoxaláty) – slintanie, opuch jazyka, vracanie.',
+    toxic:true, air:true },
+
+  { id:'p3', name:'Pothos / Potos', latin:'Epipremnum aureum', category:'foliage', emoji:'🌿',
+    temp:'18–27 °C (min. 13 °C)', humid:'40–60 %', light:'Tolerantný – polotieň aj jasné rozptýlené',
+    location:'shade', water:'easy', method:'top',
+    lightLevel:'2_medium', distance:'mid', lightAdvice:`Hocikde – znesie aj polotieň. Pre variegovaný (žltý) Pothos potrebuje viac svetla, pre zelený stačí menej. Priame slnko nie!`,
+    tips:`🍌 Banánová voda každý druhý zalievanie (rýchly rast). ☕ Káva OK riedená (znesie aj kyslé). 🥚 Vápnik z škrupiniek – áno. 🍵 Čierny čaj OK. 🌿 Najľahšie množenie – odrezok do pohára vody, do mesiaca korene a darovať!`,
+    airDetail:`TESTOVANÁ NASA Clean Air Study (1989). Odstraňuje: ✓ formaldehyd ✓ benzén ✓ xylén ✓ oxid uhoľnatý. Jeden z najúčinnejších čističov vzduchu z testovanej skupiny.`,
+    waterSummer:'1× za 7–10 dní, keď top 3–4 cm vyschne', waterWinter:'1× za 14 dní',
+    self:'big', mist:'Netreba',
+    fertSummer:'1× mesačne, vyvážené', fertWinter:'Nehnojiť',
+    soil:'Univerzálny + trochu perlitu', repot:'1× za 2–3 roky',
+    spring:'Naštartovať hnojenie. Zastrihnúť dlhé previsy pre hustejší rast.',
+    summer:'Rýchly rast. Zalievať pravidelne, ale netopiť.',
+    autumn:'Znížiť hnojenie. Vyčistiť listy.',
+    winter:'Pomalšie rastie. Zalievať menej. Tolerantný.',
+    propagation:'NAJĽAHŠIE – odstrihni 10 cm s 2–3 listami a uzlom, do vody, korene 1–2 týždne.',
+    problems:'Žlté spodné listy = preliatie. Bledá variegácia = málo svetla. Ovisnutý = sucho. Pavúkovce v suchu.',
+    likes:'Najodolnejšia izbovka – tolerantná, dlhé previsy. Pre začiatočníkov.',
+    warn:'JEDOVATÝ pre psy (kalciumoxaláty) – podráždenie úst, slintanie, vracanie.',
+    toxic:true, air:true },
+
+  { id:'p4', name:'Sansevieria Moonshine', latin:'Dracaena trifasciata \'Moonshine\'', category:'desert', emoji:'🗡️',
+    temp:'18–27 °C (znesie 10–32 °C)', humid:'30–50 %', light:'Tolerantná – od priameho slnka po polotieň',
+    location:'shade', water:'easy', method:'top',
+    lightLevel:'2_medium', distance:'mid', lightAdvice:`Najtolerantnejšia – od priameho slnka po polotieň. Optimum: jasná izba 1–2 m od okna. V temne prežije ale nerastie.`,
+    tips:`🥚 Mleté škrupinky vajec do substrátu pri presádzaní (vápnik). ☕ NIE káva (príliš kyslá pre púštnu). 🍌 Banánová voda 1× za 2 mesiace stačí. 💧 Studený zelený čaj veľmi občas. 🪨 Štrk navrch substrátu – krásne aj prevencia hniloby koreňov.`,
+    airDetail:`TESTOVANÁ NASA (1989). Odstraňuje: ✓ formaldehyd ✓ benzén ✓ xylén ✓ toluén ✓ trichloretylén. UNIKÁT: prijíma CO₂ aj v noci (CAM fotosyntéza) – ideálna do spálne.`,
+    waterSummer:'1× za 2–3 týždne, vždy keď celý substrát vyschne', waterWinter:'1× mesačne, niekedy menej',
+    self:'none', mist:'Netreba',
+    fertSummer:'1× za 2 mesiace, sukulentné zriedené', fertWinter:'Nehnojiť',
+    soil:'Kaktusový + perlit (2:1)', repot:'1× za 3–4 roky, znesie tesný kvetináč (kvitne potom!)',
+    spring:'Začať jemnú zálievku. Presadiť LEN ak naozaj prerastá.',
+    summer:'Pomalý rast. Občas otrieť listy.',
+    autumn:'Znížiť zálievku.',
+    winter:'Takmer nezalievať – studený + mokrý = hniloba. Drž nad 10 °C.',
+    propagation:'Listové rezky (5–7 cm, zaschnúť 1–2 dni, do substrátu) – TRVÁ MESIACE. Lepšie rozdelením koreňového balu.',
+    problems:'Mäkké, žlté listy pri báze = hniloba (najčastejší zabijak!). Hnedé špičky = preliatie.',
+    likes:'Suchá izba, znesie temno aj zanedbanie. Najtolerantná izbovka.',
+    warn:'Mierne JEDOVATÁ pre psy (saponíny) – slintanie, vracanie, mierne.',
+    toxic:true, air:true },
+
+  { id:'p5', name:'Citrus Calamondin', latin:'Citrus × microcarpa', category:'citrus', emoji:'🍋',
+    temp:'15–27 °C leto, ZIMA 10–15 °C (kvitnutie)', humid:'40–50 %', light:'MAXIMUM svetla, 4+ hodín priameho slnka denne',
+    location:'parapet', water:'settled', method:'top',
+    lightLevel:'5_direct_long', distance:'parapet', lightAdvice:`POVINNE južný parapet, minimálne 4–6 h priameho slnka denne. Bez plného slnka neprinesie plody. V lete von na slnečný balkón.`,
+    tips:`🍌 Banánová voda v sezóne kvitnutia (draslík = viac kvetov a plodov). 🥚 Škrupinky pri presádzaní (vápnik proti chloróze). ☕ Riedená káva OK – citrusy znesú kyslé. 🍵 Zelený čaj výborne. 🐟 Akváriová voda (ak máš rybky) je top hnojivo.`,
+    airDetail:`NETESTOVANÝ v NASA. Ako kvitnúca citrusová rastlina vydáva príjemnú vôňu z listov, zvyšuje vlhkosť vzduchu. Iné štúdie ukazujú že silice z citrusov majú mierny antibakteriálny efekt.`,
+    waterSummer:'2–3× týždeň, hĺbkovo, keď top 2 cm vyschne', waterWinter:'1× týždeň, menej (chladnejšie = menej)',
+    self:'small', mist:'Občas v lete kvôli pavúkovcom',
+    fertSummer:'1× týždeň citrusové hnojivo (Mar–Sep)', fertWinter:'1× mesačne polovičná dávka',
+    soil:'Citrusový (alebo univerzálny + perlit + piesok, kyslý pH 6–6.5)', repot:'1× za 2–3 roky na jar, alebo top-dressing',
+    spring:'Presadiť. Postupné prebudenie z chladnej zimy. Plné hnojenie. V lete von na balkón.',
+    summer:'PLNÉ slnko, hĺbková zálievka, citrusové týždenne. Ručné opelenie kvetov vatičkou.',
+    autumn:'Postupné znižovanie. Inšpekcia škodcov. Pred mrazmi DO vnútra.',
+    winter:'IDEÁLNE chladné svetlé miesto 10–15 °C. Plody dozrievajú v zime.',
+    propagation:'Rezky polotvrdé v lete – 10 cm, pod fóliou. 2–3 mesiace. Zo semien aj.',
+    problems:'Žltnutie = málo dusíka alebo preliatie. Padajúce listy = prievan, šok. Lipkavé listy + biele bodky = vošky → mydlová voda.',
+    likes:'Mediterránna klíma – plné slnko, vetrík, chladná zima. Skvelý balkónový pestún.',
+    warn:'Bezpečný pre psy ✓. Po zime postupne do priameho slnka (popálenie!).',
+    toxic:false, air:false },
+
+  { id:'p6', name:'Adenium (Púštna ruža)', latin:'Adenium obesum', category:'desert', emoji:'🌳',
+    temp:'21–32 °C leto, ZIMA 12–15 °C (kvitnutie)', humid:'30–40 % (suché)', light:'PLNÉ slnko 6+ hodín, južné okno',
+    location:'parapet', water:'easy', method:'top',
+    lightLevel:'5_direct_long', distance:'parapet', lightAdvice:`Južný parapet, 6+ h priameho slnka. Čím viac slnka tým viac kvitne. Bez plného slnka kaudex nezhrubne a nekvitne.`,
+    tips:`🥚 Škrupinky pri presádzaní (vápnik pre kaudex). NIE banán/káva/čaj – dehydruje a uhníva. 🪨 Drvený keramzit / pemza pri báze. 💧 Zalievaj VLAŽNOU vodou v lete (studená šokuje). ⚠️ Pri každej manipulácii rukavice – miazga dráždi.`,
+    airDetail:`NETESTOVANÉ v NASA. Sukulenty a púštne rastliny majú minimálny efekt na vzduch okrem CO₂/O₂ výmeny. Žiadny špecifický VOC filter.`,
+    waterSummer:'1× týždeň, hĺbkovo, keď celý substrát vyschne', waterWinter:'TAKMER NEZALIEVAŤ – sucho do prebudenia',
+    self:'none', mist:'Nekropiť!',
+    fertSummer:'1× za 4–6 týždňov, kaktusové polovičná sila', fertWinter:'Nehnojiť',
+    soil:'Kaktusový + perlit + keramzit (2:1:1) – ULTRA priedušný', repot:'1× za 3–4 roky na jar, terakota ideálna',
+    spring:'Prebudiť postupne – minimálna zálievka. Po prvých listoch začať hnojiť.',
+    summer:'PLNÉ slnko, hĺbková zálievka medzi úplným preschnutím. Trumpetové kvety.',
+    autumn:'Postupne znižovať. Hnojenie končí v septembri.',
+    winter:'DORMANCIA – chladné suché miesto, listy spadnú (NORMÁLNE). Žiadna voda. <10 °C riziko.',
+    propagation:'Rezky stonky 10–15 cm v lete, zaschnúť 5–7 dní, do suchého kaktusového substrátu. Korene 4–6 týždňov.',
+    problems:'Hniloba kaudexu = preliatie zima. Žlté listy = normálne na jeseň ALEBO preliatie. Pavúkovce v zime.',
+    likes:'Africká savana – horúco, sucho, plné slnko. Bonsajový charakter.',
+    warn:'SILNE JEDOVATÝ – aj miazga (na koži dráždi). NIKDY rezať bez rukavíc!',
+    toxic:true, air:false },
+
+  { id:'p7', name:'Sarracenia', latin:'Sarracenia purpurea', category:'carnivore', emoji:'🥀',
+    temp:'18–32 °C leto, ZIMA 0–10 °C (POVINNÁ dormancia!)', humid:'50 %+', light:'PLNÉ slnko – min. 6 hodín priameho denne',
+    location:'parapet', water:'nazi', method:'tray',
+    lightLevel:'5_direct_long', distance:'parapet', lightAdvice:`PLNÉ slnko aspoň 6 h denne, ideálne juh. V tieni stráca farbu a nerobí pasce. Najlepšie von na balkóne celé leto.`,
+    tips:`⚠️ NIČ NEDÁVAJ! Žiadne banán, káva, čaj, hnojivo. Sarracenia umrie z čohokoľvek okrem destilovanej/dažďovej. 🦟 Letiacky hmyz si chytí sama – nemusíš ju kŕmiť. 🌧 Zbieraj dažďovku do barelu na celé leto.`,
+    airDetail:`NETESTOVANÁ v NASA. Mäsožravka loví hmyz – znižuje populáciu mušiek a komárov v izbe (jediná "čistič" tohto typu v zbierke).`,
+    waterSummer:'Stála 2–4 cm voda v podmiske – LEN destilovaná/dažďová', waterWinter:'Substrát len mierne vlhký',
+    self:'none', mist:'NIKDY na pasce! Plesne a hniloba.',
+    fertSummer:'NIKDY NEHNOJIŤ! Ak chceš kŕmiť, hoď do pasce 1 mŕtvy hmyz raz za 1–2 týždne.', fertWinter:'NIKDY',
+    soil:'Rašelina + perlit (2:1) ALEBO rašelina + biely piesok – KYSLÝ pH 3–5, bez živín!', repot:'1× za 2–3 roky začiatkom jari',
+    spring:'Presadiť. Odstrihnúť staré pasce. Plná zálievka destilovanou.',
+    summer:'PLNÉ slnko (čím viac, tým väčšie pasce). 2–4 cm vody v podmiske vždy.',
+    autumn:'Pasce hnedne – NORMÁLNE. NEODSTRAŇOVAŤ až do jari (kŕmia rastlinu energiou).',
+    winter:'POVINNÁ chladná dormancia 0–10 °C 3–4 mesiace! Bez nej za 1–2 roky umrie. Garáž / balkón pod strieškou.',
+    propagation:'Rozdelením rízomu pri presádzaní na jar – každá časť s growing point.',
+    problems:'Hnedé pasce na jeseň = normálne. Slabá farba = málo svetla. Hniloba = teplá zima bez dormancie.',
+    likes:'Severoamerické rašeliniská – chladná zima, horúce slnečné leto, kyslá voda.',
+    warn:'NETOXICKÁ pre psy ✓. Najťažšia rastlina v zbierke. Kúp destilovanú vo veľkom (5L = mesiac).',
+    toxic:false, air:false },
+
+  { id:'p8', name:'Begonia Rex Ferrox', latin:'Begonia rex-cultorum \'Ferrox\'', category:'flower', emoji:'🌱',
+    temp:'18–24 °C (min. 15 °C, max. 27 °C)', humid:'50–70 %', light:'Jasné rozptýlené, NIKDY priame slnko',
+    location:'near', water:'nazi', method:'tray',
+    lightLevel:'3_bright', distance:'near', lightAdvice:`Jasné rozptýlené svetlo, severný/východný parapet. Priame slnko PÁLI listy. V tieni listy stratia farby a vzor.`,
+    tips:`🍌 Banánová voda 1× za 3 týždne (draslík pre farby listov). 🍵 Vystátý čaj (mierne kyslý) áno. ☕ Káva NIE (priame slnko + káva = horiace listy). 🥚 Vápnik pri presádzaní. 💧 Voda VŽDY VLAŽNÁ – studená rozbije listy.`,
+    airDetail:`NETESTOVANÁ v NASA. Begónie všeobecne neukázali špecifický VOC efekt v štúdiách. Tropický pôvod = mierne zvyšuje vlhkosť.`,
+    waterSummer:'1× týždeň keď top 2 cm vyschne, NIKDY na listy', waterWinter:'1× za 10–14 dní',
+    self:'small', mist:'NIKDY priamo (huby!) – zvlhčovač / pebble tray',
+    fertSummer:'1× za 2–3 týždne, vyvážené 1/4 sily', fertWinter:'Nehnojiť',
+    soil:'Univerzálny + rašelina + perlit (2:1:1)', repot:'1× ročne (mladé), 2–3 roky (dospelé), plytký široký kvetináč',
+    spring:'Hnojenie. Presadiť ak root-bound. Pinch tipov pre hustšiu rastlinu.',
+    summer:'Hlavná sezóna. Pravidelná zálievka zo spodu, vlhkosť okolo. Otáčať.',
+    autumn:'Postupné znižovanie hnojenia. Skontrolovať mealybugs.',
+    winter:'Polospánok – pomalý rast, menej zálievky. Drž >15 °C.',
+    propagation:'Listové rezky – list nakroj na klínky (každý s hlavnou žilou) do vlhkého substrátu pod fóliou. Korene 4–6 týždňov.',
+    problems:'Hnedé okraje = nízka vlhkosť. Žlté = preliatie. Plesnivý povlak = vlhkosť BEZ vetrania. Mealybugs = isopropyl alkohol.',
+    likes:'Tropický podrast – vlhkosť, polotieň, teplo. Pestovaná pre listy.',
+    warn:'JEDOVATÁ pre psy (kalciumoxaláty + saponíny) – KORENE najtoxickejšie! Mimo dosahu!',
+    toxic:true, air:false },
+
+  { id:'p9', name:'Begonia Rex červená', latin:'Begonia rex-cultorum hybrid', category:'flower', emoji:'🌱',
+    temp:'18–24 °C (min. 15 °C)', humid:'50–70 %', light:'Jasné rozptýlené, bez priameho slnka',
+    location:'near', water:'nazi', method:'tray',
+    lightLevel:'3_bright', distance:'near', lightAdvice:`Jasné rozptýlené svetlo, ideálne severný parapet alebo 50 cm od východného. Priame slnko zničí farby listov.`,
+    tips:`🍌 Banánová voda 1× za 3 týždne. 🍵 Vystátý čaj áno. ☕ Káva NIE. 🥚 Vápnik pri presádzaní. 💧 VŽDY vlažná voda. ✂️ Kvetné stonky odstrihávaj – minie sa silám na listy ktoré sú hlavná atrakcia.`,
+    airDetail:`NETESTOVANÁ v NASA. Begónie všeobecne neukázali špecifický VOC efekt v štúdiách. Tropický pôvod = mierne zvyšuje vlhkosť.`,
+    waterSummer:'1× týždeň keď top 2 cm vyschne, ZO SPODU', waterWinter:'1× za 10–14 dní',
+    self:'small', mist:'NIKDY priamo na listy',
+    fertSummer:'1× za 2–3 týždne, 1/4 sily', fertWinter:'Nehnojiť',
+    soil:'Univerzálny + rašelina + perlit (2:1:1)', repot:'1× za 2 roky, plytký kvetináč',
+    spring:'Presadiť. Začať hnojenie. Pinch tipy.',
+    summer:'Stála vlhkosť okolo, zálievka zo spodu, rotácia.',
+    autumn:'Postupne znížiť hnojenie a zálievku.',
+    winter:'Polospánok, menej vody, drž teplo.',
+    propagation:'Listové rezky – klínky alebo celý list. Najľahšie množenie!',
+    problems:'Hnedé okraje = nízka vlhkosť. Žlté = preliatie. Plesnivý povlak = bez vetrania.',
+    likes:'Stála vlhkosť, polotieň, teplo. Listy ako šperk.',
+    warn:'JEDOVATÁ pre psy – korene najtoxickejšie. Mimo dosahu!',
+    toxic:true, air:false },
+
+  { id:'p10', name:'Chamaedorea elegans', latin:'Chamaedorea elegans', category:'tropical', emoji:'🎋',
+    temp:'18–24 °C (min. 13 °C)', humid:'40–60 %', light:'Jasné rozptýlené až polotieň, ZNESE temno',
+    location:'near', water:'settled', method:'top',
+    lightLevel:'2_medium', distance:'mid', lightAdvice:`Polotieň až rozptýlené svetlo, 1–2 m od okna. Tolerantná na temnejšie miesta. Priame slnko popáli listy. Východ alebo sever ideálne.`,
+    tips:`🍌 Banánová voda 1× za 3 týždne (potrebuje draslík). 🥚 Škrupinky pri presádzaní. 🍵 Slabý čaj OK. ☕ Káva nie. 🌿 Prachové listy → utrieť vlhkou handrou pravidelne, palmy najviac trpia prachom.`,
+    airDetail:`TESTOVANÁ NASA (1989) – príbuzná Chamaedorea seifrizii. Odstraňuje: ✓ formaldehyd ✓ benzén ✓ xylén ✓ toluén. Patrí medzi top 10 čističov vzduchu z NASA štúdie.`,
+    waterSummer:'1× týždeň, keď top 2–3 cm vyschne', waterWinter:'1× za 10–14 dní',
+    self:'small', mist:'2–3× týždeň v lete, kvôli pavúkovcom',
+    fertSummer:'1× mesačne, vyvážené 1/2 sily', fertWinter:'Nehnojiť',
+    soil:'Univerzálny + perlit (3:1)', repot:'1× za 2–3 roky, NEMÁ rada presádzanie (jemné korene)',
+    spring:'Hnojenie. Vyčistiť listy.',
+    summer:'Pravidelná zálievka, mistovať. Najľahšia palma na vnútorné pestovanie.',
+    autumn:'Znížiť zálievku. Skontrolovať pavúkovce.',
+    winter:'Pomalý rast. Drž ďalej od kúrenia.',
+    propagation:'TÁZKE doma – iba zo semien (mesiace klíčia). Lepšie kupovať hotovú.',
+    problems:'Hnedé špičky = chlór → odstátá voda + vlhkosť. Žltnutie = preliatie. Pavúkovce = sprcha + neem oil.',
+    likes:'Mexický dažďový prales – tieň, vlhkosť. Najtolerantnejšia palma.',
+    warn:'BEZPEČNÁ pre psy ✓. Citlivá na fluorid – odstátá voda áno.',
+    toxic:false, air:true },
+
+  { id:'p11', name:'Dracaena compacta', latin:'Dracaena fragrans \'Compacta\'', category:'foliage', emoji:'🎋',
+    temp:'18–27 °C (min. 13 °C)', humid:'40–50 %', light:'Jasné rozptýlené, bez priameho slnka',
+    location:'near', water:'settled', method:'top',
+    lightLevel:'3_bright', distance:'near', lightAdvice:`Jasné rozptýlené, do 1 m od východného/severného okna. Polotieň znesie. Priame slnko popáli listy.`,
+    tips:`🍌 Banánová voda 1× mesačne. 🥚 Vápnik pri presádzaní. ☕ Slabá káva OK občas. 🌿 Žlté spodné listy – odštipni, je to NORMÁLNY proces, dracéna ich odhadzuje keď nepotrebuje. 💧 Vlažná voda.`,
+    airDetail:`TESTOVANÁ NASA (1989). Dracaena fragrans odstraňuje: ✓ formaldehyd ✓ benzén ✓ trichloretylén ✓ xylén ✓ toluén. Veľmi účinná, najmä formaldehyd z nábytku z drevotriesky.`,
+    waterSummer:'1× za 7–10 dní, keď top 3–4 cm vyschne', waterWinter:'1× za 14 dní',
+    self:'small', mist:'Občas v lete',
+    fertSummer:'1× mesačne, vyvážené', fertWinter:'Nehnojiť',
+    soil:'Univerzálny + perlit (3:1)', repot:'1× za 2–3 roky',
+    spring:'Hnojenie. Presadiť ak treba. Vyčistiť listy.',
+    summer:'Pravidelná zálievka.',
+    autumn:'Znížiť hnojenie.',
+    winter:'Pomalý rast. Drž ďalej od chladných okien.',
+    propagation:'Stoplíkové rezky – odstrihni vrch s listami, korene vo vode 4–6 týždňov. Aj zo zvyšného pňa narastú nové výhonky.',
+    problems:'Hnedé špičky = fluór/chlór → odstátá voda. Žlté = preliatie. Hnedé škvrny = priame slnko (popálenie).',
+    likes:'Pomalá, vďačná, dlhoveká rastlina.',
+    warn:'JEDOVATÁ pre psy (saponíny) – slintanie, vracanie, rozšírené zreničky.',
+    toxic:true, air:true },
+
+  { id:'p12', name:'Dracaena fragrans', latin:'Dracaena fragrans', category:'foliage', emoji:'🎋',
+    temp:'18–27 °C (min. 13 °C)', humid:'40–50 %', light:'Jasné rozptýlené, znesie polotieň',
+    location:'near', water:'settled', method:'top',
+    lightLevel:'3_bright', distance:'near', lightAdvice:`Jasné rozptýlené, do 1 m od východného/severného okna. Polotieň znesie. Priame slnko popáli listy.`,
+    tips:`🍌 Banánová voda 1× mesačne. 🥚 Vápnik pri presádzaní. ☕ Slabá káva OK občas. 🌿 Žlté spodné listy normálne. ✂️ Po zastrihnutí vrcholu narastú 2-3 nové výhonky – krásne sa rozvetví.`,
+    airDetail:`TESTOVANÁ NASA (1989). Odstraňuje: ✓ formaldehyd ✓ benzén ✓ trichloretylén ✓ xylén ✓ toluén. Jedna z najuniverzálnejších čističov vzduchu.`,
+    waterSummer:'1× za 7–10 dní', waterWinter:'1× za 14 dní',
+    self:'small', mist:'Občas v lete',
+    fertSummer:'1× mesačne', fertWinter:'Nehnojiť',
+    soil:'Univerzálny + perlit (3:1)', repot:'1× za 2–3 roky',
+    spring:'Hnojenie, vyčistiť listy.',
+    summer:'Stála zálievka, otáčať.',
+    autumn:'Znížiť všetko.',
+    winter:'Pomalý rast.',
+    propagation:'Stoplíkové rezky – výborne sa množí!',
+    problems:'Hnedé špičky = fluór/chlór. Žlté listy = preliatie.',
+    likes:'Tolerantná, dlhoveká.',
+    warn:'JEDOVATÁ pre psy. Mimo dosahu.',
+    toxic:true, air:true },
+
+  { id:'p13', name:'Chlorophytum comosum', latin:'Chlorophytum comosum', category:'foliage', emoji:'🪴',
+    temp:'13–27 °C', humid:'30–60 %', light:'Jasné rozptýlené, znesie polotieň',
+    location:'near', water:'easy', method:'top',
+    lightLevel:'3_bright', distance:'mid', lightAdvice:`Jasné rozptýlené až polotieň, hocikde v jasnej izbe. Priame slnko žiadne. Variegované odrody potrebujú viac svetla.`,
+    tips:`🍌 Banánová voda super (rýchly rast + viac plantletov). ☕ Káva riedená OK. 🥚 Vápnik. 🍵 Čaj áno. 🍼 Detí (plantlets) hneď zakorení v pohári vody – dar pre kamarátov.`,
+    airDetail:`TESTOVANÁ NASA (1989). Odstraňuje: ✓ formaldehyd ✓ xylén ✓ toluén ✓ oxid uhoľnatý. Jeden z najlepších čističov pre kuchyňu (CO z plynového sporáka).`,
+    waterSummer:'1× týždeň', waterWinter:'1× za 10–14 dní',
+    self:'small', mist:'Netreba',
+    fertSummer:'1× za 3 týždne, 1/2 sily', fertWinter:'Nehnojiť',
+    soil:'Univerzálny + perlit (3:1)', repot:'1× za 2 roky',
+    spring:'Hnojenie. Presadiť.',
+    summer:'Vyrába "deti" na výhonkoch (plantlets) – odstrihni a zakorení.',
+    autumn:'Znížiť hnojenie.',
+    winter:'Pomalý rast.',
+    propagation:'NAJĽAHŠIE – odstrihni "dieťa" z výhonku, do vody alebo priamo do pôdy. Korene za pár dní!',
+    problems:'Hnedé špičky = chlór/fluór alebo presušenie → odstátá voda. Žlté = preliatie. Bledé = málo svetla.',
+    likes:'Najnenáročnejšia – znesie zanedbanie. Pre začiatočníkov.',
+    warn:'BEZPEČNÝ pre psy ✓. Mierne halucinogénny pre mačky, neškodný.',
+    toxic:false, air:true },
+
+  { id:'p14', name:'Callisia (Himalaya)', latin:'Callisia repens', category:'foliage', emoji:'🌿',
+    temp:'18–24 °C (min. 10 °C)', humid:'40–60 %', light:'Jasné svetlo, niekoľko hodín priameho slnka denne',
+    location:'parapet', water:'settled', method:'top',
+    lightLevel:'4_direct_short', distance:'parapet', lightAdvice:`Východný/západný parapet, 2–4 h priameho slnka. Plné svetlo prináša ružovú farbu listom. V tieni vyblednutá variegácia.`,
+    tips:`🍌 Banánová voda 1× za 3 týždne. ☕ Káva NIE (slnko + káva = škvrny). 🥚 Vápnik pri presádzaní. ✂️ Pinch tipov pravidelne pre hustšiu rastlinu. 🌿 Odštrihnuté kúsky hneď zakorenia – nezahadzuj!`,
+    airDetail:`NETESTOVANÁ v NASA. Tropický pôvod – cez transpiráciu prispieva k vlhkosti. Žiadny špecifický VOC filter preukázaný.`,
+    waterSummer:'1× týždeň keď top 2 cm vyschne', waterWinter:'1× za 10–14 dní',
+    self:'small', mist:'Občas',
+    fertSummer:'1× za 3 týždne', fertWinter:'Nehnojiť',
+    soil:'Univerzálny + perlit (3:1)', repot:'1× za 2 roky',
+    spring:'Pinch tipov pre hustšiu rastlinu. Hnojenie.',
+    summer:'Pravidelná zálievka, plné svetlo pre ružovú variegáciu.',
+    autumn:'Znížiť všetko.',
+    winter:'Pomalšie, menej zálievky.',
+    propagation:'NAJĽAHŠIE – odstrihni 5 cm rezok, do vody alebo priamo do pôdy. Korene za 1–2 týždne.',
+    problems:'Bledá variegácia = málo svetla → bližšie k oknu. Vytiahnutá = málo svetla.',
+    likes:'Slnko, ľahká, krásny previs.',
+    warn:'Mierne dráždi pokožku pri rezaní. Pri pozretí psom GI ťažkosti – preventívne mimo dosahu.',
+    toxic:true, air:false },
+
+  { id:'p15', name:'Rhaphidophora variegata', latin:'Rhaphidophora tetrasperma', category:'tropical', emoji:'🍃',
+    temp:'18–27 °C (min. 13 °C)', humid:'50–60 %', light:'Jasné rozptýlené (variegácia potrebuje svetlo!)',
+    location:'near', water:'settled', method:'top',
+    lightLevel:'3_bright', distance:'near', lightAdvice:`Jasné rozptýlené svetlo, severný/východný parapet. Variegácia POTREBUJE svetlo – v tieni nové listy budú celé zelené.`,
+    tips:`🍌 Banánová voda 1× za 2 týždne (rýchly rast). 🥚 Vápnik pri presádzaní. ☕ Káva riedená OK. 🍵 Čaj áno. 🌿 Variegácia: ak na rastline máš úplne biele listy, odstrihni – kradnú energiu (nevedia fotosyntetizovať).`,
+    airDetail:`NETESTOVANÁ v NASA. Príbuzná Monstery – pravdepodobne podobné mierne efekty (CO₂, vlhkosť). Žiadny dokázaný VOC filter.`,
+    waterSummer:'1× týždeň keď top 2–3 cm vyschne', waterWinter:'1× za 10–14 dní',
+    self:'small', mist:'2× týždeň v lete',
+    fertSummer:'1× za 2 týždne, vyvážené 1/2 sily', fertWinter:'Nehnojiť',
+    soil:'Univerzálny + perlit + orchideová kôra (2:1:1)', repot:'1× za 2 roky, s mossstickom',
+    spring:'Presadiť, dať mossstick. Hnojenie.',
+    summer:'Najrýchlejší rast. Smeruje k svetlu. Otáčať.',
+    autumn:'Znížiť hnojenie.',
+    winter:'Pomalšie. Variegované časti potrebujú viac svetla – grow light pomáha.',
+    propagation:'Stoplíkové rezky cez nodál – do vody alebo sphagnum. Korene 3–4 týždne. POZOR: variegáciu treba aj v rezku!',
+    problems:'Žlté listy = preliatie. Hnedé okraje = sucho. Žiadna variegácia v nových listoch = málo svetla.',
+    likes:'"Mini Monstera" – lezie, vďačné. Variegácia ho robí šperkom.',
+    warn:'JEDOVATÁ pre psy (kalciumoxaláty) – ako Monstera. Mimo dosahu.',
+    toxic:true, air:true },
+
+  { id:'p16', name:'Jatropha podagrica', latin:'Jatropha podagrica', category:'desert', emoji:'🌳',
+    temp:'18–24 °C leto, ZIMA 12–15 °C (kvitnutie)', humid:'30–50 %', light:'Jasné svetlo, ráno/večer priame slnko',
+    location:'parapet', water:'easy', method:'top',
+    lightLevel:'5_direct_long', distance:'parapet', lightAdvice:`Južný parapet, 4+ h priameho slnka. Bez plného slnka kaudex nehrubne a nekvitne. Ráno/večer priame slnko ideálne.`,
+    tips:`🥚 Škrupinky pri presádzaní (vápnik pre kaudex). NIE banán/káva/čaj – uhníva. 🪨 Drť navrch substrátu. ⚠️ MIAZGA na koži = červená vyrážka. Vždy rukavice. 🌱 Ak ti spadne semienko – urči pohlavie kvetov (samčie/samičie) pred zber.`,
+    airDetail:`NETESTOVANÉ v NASA. Sukulenty a púštne rastliny majú minimálny efekt na vzduch okrem CO₂/O₂ výmeny.`,
+    waterSummer:'1× týždeň keď top 1/3 substrátu vyschne', waterWinter:'TAKMER NEZALIEVAŤ – mesiac bez vody',
+    self:'none', mist:'Netreba',
+    fertSummer:'1× za 4 týždne, kaktusové alebo paradajkové (kvitnutie)', fertWinter:'Nehnojiť',
+    soil:'Kaktusový + perlit (2:1) – ULTRA priedušný', repot:'1× za 3 roky na jar (znesie tesný)',
+    spring:'Prebudiť postupne. Po prvých listoch hnojiť.',
+    summer:'Plné svetlo. Hĺbková zálievka medzi úplným preschnutím. Koralové kvety!',
+    autumn:'Znižovanie zálievky. Listy začnú žltnúť a opadávať – NORMÁLNE.',
+    winter:'Plná dormancia – listy spadnú, kaudex žije z rezerv. Studené suché miesto, žiadna voda. Min. 12 °C.',
+    propagation:'Apikálne rezky na jar – pozor na MIAZGU (silne dráždivá!), zaschnúť 2–3 dni, do suchého substrátu.',
+    problems:'Hnilý kaudex = preliatie zima. Žiadne kvety = málo svetla / žiadna chladná dormancia.',
+    likes:'Stredoamerické sucho. "Buddha belly" kaudex je hlavná atrakcia.',
+    warn:'SILNE JEDOVATÁ pre psy aj ľudí – semená najtoxickejšie (3 semená môžu zabiť psa). Miazga DRÁŽDI!',
+    toxic:true, air:false },
+
+  { id:'p17', name:'Rhipsalis heteroclada', latin:'Rhipsalis heteroclada', category:'succulent', emoji:'💚',
+    temp:'18–24 °C (min. 10 °C)', humid:'50–60 % (epifyt!)', light:'Jasné rozptýlené, BEZ priameho slnka (lesný kaktus)',
+    location:'near', water:'settled', method:'top',
+    lightLevel:'3_bright', distance:'near', lightAdvice:`Jasné rozptýlené svetlo (lesný kaktus, NIE púštny!). Severný parapet alebo 50 cm od slnečného okna. Priame slnko popáli segmenty.`,
+    tips:`🍌 Banánová voda 1× mesačne (lesný kaktus znesie). 🥚 Vápnik. ☕ Slabá káva OK. 🍵 Čaj áno. 🌿 Odlomené segmenty NEZAHADZUJ – polož na vlhký substrát, korene za 2 týždne, máš novú rastlinku zadarmo.`,
+    airDetail:`NETESTOVANÉ v NASA. Lesný kaktus – cez epifytný spôsob života prispieva mierne k vlhkosti. Žiadny dokázaný VOC filter.`,
+    waterSummer:'1× týždeň keď top 2 cm vyschne', waterWinter:'1× za 2–3 týždne',
+    self:'none', mist:'Občas v lete (epifyt)',
+    fertSummer:'1× mesačne, kaktusové polovičná sila', fertWinter:'Nehnojiť',
+    soil:'Kaktusový + univerzálny + perlit (1:1:1) – odlišný od púštnych kaktusov!', repot:'1× za 2–3 roky',
+    spring:'Hnojenie, presadiť ak treba.',
+    summer:'Pravidelná zálievka, môže von do tieňa.',
+    autumn:'Znížiť všetko.',
+    winter:'Menej vody, chladnejšie podporí jarné kvitnutie.',
+    propagation:'Rezky stoniek – odstrihni segment, zaschnúť 1 deň, do vlhkého substrátu. Korene 2–3 týždne.',
+    problems:'Pomarančovokrémové = priame slnko (popálenie). Vrásčité segmenty = sucho.',
+    likes:'Brazílsky lesný epifyt – previs, vlhkosť, polotieň. NIE je púštny kaktus!',
+    warn:'BEZPEČNÝ pre psy ✓.',
+    toxic:false, air:false },
+
+  { id:'p18', name:'Rhipsalis cassutha', latin:'Rhipsalis baccifera', category:'succulent', emoji:'💚',
+    temp:'18–24 °C (min. 10 °C)', humid:'50–60 %', light:'Jasné rozptýlené, bez priameho slnka',
+    location:'near', water:'settled', method:'top',
+    lightLevel:'3_bright', distance:'near', lightAdvice:`Jasné rozptýlené svetlo. Severný parapet alebo 50 cm od slnečného okna. Lesný kaktus – priame slnko popáli segmenty.`,
+    tips:`🍌 Banánová voda 1× mesačne. 🥚 Vápnik. ☕ Slabá káva OK. 🌿 Odlomené segmenty zakorení v pohári s vlhkým machom alebo priamo na substráte.`,
+    airDetail:`NETESTOVANÉ v NASA. Lesný kaktus – mierna kontribúcia k vlhkosti. Žiadny dokázaný VOC filter.`,
+    waterSummer:'1× týždeň', waterWinter:'1× za 2–3 týždne',
+    self:'none', mist:'Občas',
+    fertSummer:'1× mesačne, kaktusové 1/2 sily', fertWinter:'Nehnojiť',
+    soil:'Kaktusový + univerzálny + perlit (1:1:1)', repot:'1× za 2–3 roky',
+    spring:'Hnojenie.',
+    summer:'Pravidelná zálievka, krásny dlhý previs.',
+    autumn:'Znížiť.',
+    winter:'Menej vody.',
+    propagation:'Rezky stoniek – ľahké!',
+    problems:'Vrásčité segmenty = sucho. Hniloba = preliatie.',
+    likes:'Lesný epifyt, previs, vlhkosť.',
+    warn:'BEZPEČNÝ pre psy ✓.',
+    toxic:false, air:false },
+
+  { id:'p19', name:'Crassula Buddha\'s Temple', latin:'Crassula \'Buddha\'s Temple\'', category:'succulent', emoji:'🪷',
+    temp:'18–27 °C leto, zima 10–15 °C ideálne', humid:'30–40 %', light:'PLNÉ slnko 4+ hodín, južné/východné okno',
+    location:'parapet', water:'easy', method:'tray',
+    lightLevel:'5_direct_long', distance:'parapet', lightAdvice:`Južný/východný parapet, 4+ h priameho slnka. Plné svetlo dáva ružové okraje listom. V tieni etioluje (vytiahne sa).`,
+    tips:`🥚 Škrupinky pri presádzaní. NIE banán často (príliš dusíka = vytiahnutá). 🪨 Drť navrch (estetika + prevencia hniloby). 🍃 Spadnuté listy NEZAHADZUJ – polož na suchý substrát, za pár týždňov má každý nové dieťa.`,
+    airDetail:`NETESTOVANÉ v NASA. Sukulenty majú CAM fotosyntézu (CO₂ v noci) – mierna výhoda do spálne. Žiadny VOC filter.`,
+    waterSummer:'1× za 10 dní, hĺbkovo, keď celý substrát vyschne', waterWinter:'1× mesačne minimum',
+    self:'none', mist:'NIKDY!',
+    fertSummer:'1× za 6 týždňov, sukulentné polovičná sila', fertWinter:'Nehnojiť',
+    soil:'Kaktusový + perlit (2:1) – mineralny', repot:'1× za 3 roky na jar',
+    spring:'Začať jemnú zálievku. Presadiť ak treba.',
+    summer:'PLNÉ slnko (dáva ružové okraje). Hĺbková zálievka medzi preschnutím.',
+    autumn:'Znížiť zálievku.',
+    winter:'Chladné svetlé miesto podporí kvitnutie. Takmer nezalievať.',
+    propagation:'Listové rezky – odlúp celý list, zaschnúť 3–5 dní, polož na suchý substrát. Korene 4–8 týždňov.',
+    problems:'Etiolácia (vytiahnutá, bledá) = málo svetla → bližšie k oknu. Mäkké listy = preliatie.',
+    likes:'Africký sukulent – minimum vody, plné slnko. Architektonický tvar.',
+    warn:'Mierne JEDOVATÁ pre psy (Crassulaceae) – GI ťažkosti, srdce. Mimo dosahu.',
+    toxic:true, air:false },
+
+  { id:'p20', name:'Echeveria elegans', latin:'Echeveria elegans', category:'succulent', emoji:'🪷',
+    temp:'18–27 °C leto, zima 10–15 °C', humid:'30–40 %', light:'PLNÉ slnko 4–6 hodín denne',
+    location:'parapet', water:'easy', method:'tray',
+    lightLevel:'5_direct_long', distance:'parapet', lightAdvice:`Južný/východný parapet, 4–6 h priameho slnka denne. Bez slnka rozeta sa otvorí a vytiahne. Plné slnko = kompaktný tvar.`,
+    tips:`🥚 Škrupinky pri presádzaní (vápnik). NIE banán často. 🍃 Spadnutý / odlomený list = nový rastlinka. Nechaj zaschnúť 2-3 dni a polož na suchý substrát. 🌅 Pre ružové okraje listov – východné slnko ráno.`,
+    airDetail:`NETESTOVANÉ v NASA. CAM fotosyntéza (prijíma CO₂ v noci) – mierna výhoda do spálne. Žiadny dokázaný VOC filter.`,
+    waterSummer:'1× za 10 dní, "soak and dry"', waterWinter:'1× za 3–4 týždne',
+    self:'none', mist:'NIKDY!',
+    fertSummer:'1× za 6 týždňov, sukulentné 1/2 sily', fertWinter:'Nehnojiť',
+    soil:'Kaktusový + perlit (1:1) – ULTRA priedušný', repot:'1× za 2–3 roky na jar',
+    spring:'Začať jemnú zálievku.',
+    summer:'Plné slnko, hĺbková zálievka. Kvitne v lete – dlhé stonky s ružovými/oranžovými kvetmi.',
+    autumn:'Znižovať zálievku.',
+    winter:'Chladné svetlé miesto. Takmer nezalievať.',
+    propagation:'Listové rezky – odlúp jemne celý list (čistý odlomený), zaschnúť 2–3 dni, na suchý substrát. NAJĽAHŠIE!',
+    problems:'Etiolácia = málo svetla. Hnedé/čierne škvrny v strede rozety = voda v rozete (zhnije!) → ZALIEVAŤ ZO SPODU.',
+    likes:'Mexické vysoké pohorie – plné slnko, sucho, chladné noci.',
+    warn:'BEZPEČNÁ pre psy ✓.',
+    toxic:false, air:false },
+
+  { id:'p21', name:'ZZ Plant', latin:'Zamioculcas zamiifolia', category:'desert', emoji:'🟢',
+    temp:'18–27 °C (min. 10 °C)', humid:'30–50 %', light:'Tolerantná – polotieň po jasné rozptýlené',
+    location:'shade', water:'easy', method:'top',
+    lightLevel:'1_low', distance:'far', lightAdvice:`Tolerantná – od polotieňa po jasné rozptýlené. Pre normálny rast aspoň jasná izba. Priame slnko popáli listy.`,
+    tips:`🥚 Vápnik pri presádzaní. NIE banán často (uhnije). 🍃 Listy utrieť vlhkou handrou – ZZ má krásny prirodzený lesk, nepotrebuje umelý leštič. 🌿 Odlomené listy zakorení (pomaly) v pohári vody.`,
+    airDetail:`TESTOVANÁ v novších štúdiách (post-NASA). Odstraňuje: ✓ benzén ✓ toluén ✓ etylbenzén ✓ xylén. Tolerantná na nízke svetlo = funguje aj v temných izbách kde iné rastliny zlyhajú.`,
+    waterSummer:'1× za 2 týždne, keď celý substrát vyschne', waterWinter:'1× za 3–4 týždne',
+    self:'none', mist:'Netreba',
+    fertSummer:'1× za 2 mesiace, vyvážené 1/2 sily', fertWinter:'Nehnojiť',
+    soil:'Univerzálny + perlit + keramzit (2:1:1)', repot:'1× za 3 roky, znesie tesný',
+    spring:'Hnojenie. Presadiť LEN ak prerastá.',
+    summer:'Pomalý rast nových výhonkov. Vyčistiť listy.',
+    autumn:'Znížiť všetko.',
+    winter:'Takmer nezalievať. Najmenej náročná po Sansevierii.',
+    propagation:'Listové rezky (jednotlivé lístky) – TRVÁ MESIACE. Lepšie rozdelením rízomu pri presádzaní.',
+    problems:'Žlté listy = preliatie (najčastejší zabijak). Mäkký kmeň = hniloba rízomu.',
+    likes:'Africký sukulent – znesie temno, sucho. "Skoro nesmrteľná".',
+    warn:'JEDOVATÁ pre psy (kalciumoxaláty) – slintanie, vracanie, opuch.',
+    toxic:true, air:true },
+
+  { id:'p22', name:'Nephrolepis exaltata', latin:'Nephrolepis exaltata', category:'tropical', emoji:'🌾',
+    temp:'18–24 °C (min. 13 °C)', humid:'60–70 % (kritické!)', light:'Jasné rozptýlené, bez priameho slnka',
+    location:'near', water:'nazi', method:'tray',
+    lightLevel:'3_bright', distance:'near', lightAdvice:`Jasné rozptýlené svetlo, severný parapet ideálny. Priame slnko vysuší. Príliš tmavo = listy padajú.`,
+    tips:`🍌 Banánová voda 1× za 2 týždne (paprade milujú draslík). 🍵 Vystátý čaj výborne (mierna kyslosť pomôže). 🥚 Vápnik pri presádzaní. 💧 Substrát NESMIE vyschnúť – ak vyschne, ponor celý kvetináč do vody na 30 min.`,
+    airDetail:`TESTOVANÁ NASA (1989) – Boston papraď. Odstraňuje: ✓ formaldehyd ✓ xylén. Najúčinnejšia z testovaných pri formaldehyde. UNIKÁT: aj prirodzený zvlhčovač vzduchu (vysoká transpirácia).`,
+    waterSummer:'2–3× týždeň, vždy mierne vlhký – NIKDY nevyschnúť!', waterWinter:'1× týždeň',
+    self:'small', mist:'Denne v lete – kropiť OKOLO, nie na listy',
+    fertSummer:'1× za 2 týždne, polovičná sila', fertWinter:'Nehnojiť',
+    soil:'Univerzálny + rašelina + perlit (2:1:1) – vlhkomilný', repot:'1× ročne na jar',
+    spring:'Presadiť. Vyčistiť suché listy. Hnojenie.',
+    summer:'NAJVIAC pozornosti – stála vlhkosť, zvlhčovač denne, kropenie.',
+    autumn:'Znížiť hnojenie. Vlhkosť drž!',
+    winter:'Najťažšie obdobie – kúrenie suší. Zvlhčovač POVINNÝ.',
+    propagation:'Rozdelením koreňového balu pri presádzaní. Niektoré druhy robia výhonky (stolons).',
+    problems:'Hnedé špičky = nízka vlhkosť (najčastejšie!) → zvlhčovač + destilovaná. Žlté = preliatie alebo presušenie.',
+    likes:'Tropický prales pri vodopáde – vlhko, vlhko, vlhko. Bez 60% vlhkosti trpí.',
+    warn:'BEZPEČNÁ pre psy ✓. Citlivá na fluór – preto destilovaná.',
+    toxic:false, air:true },
+
+  { id:'p23', name:'Kaktusy (zbierka)', latin:'Cactaceae spp.', category:'succulent', emoji:'🌵',
+    temp:'18–32 °C leto, ZIMA 5–12 °C (kvitnutie!)', humid:'30–40 %', light:'PLNÉ slnko 4–6+ hodín denne',
+    location:'parapet', water:'easy', method:'tray',
+    lightLevel:'5_direct_long', distance:'parapet', lightAdvice:`Južný parapet, 4–6+ h priameho slnka. V lete von na plné slnko (postupná aklimatizácia!). Bez slnka deformovaný rast.`,
+    tips:`🥚 Mleté škrupinky 1× ročne (vápnik pre tvrdú stonku). 🪨 Drť/pemza/grog na povrchu. NIE banán/káva/čaj. 🌅 Pre kvitnutie – chladná zima (5-12°C) bez vody, leto plné slnko + 1× za 14 dní zalievať.`,
+    airDetail:`NETESTOVANÉ v NASA. Kaktusy majú CAM fotosyntézu = O₂ aj v noci, ale efekt na izbový vzduch je zanedbateľný (malý povrch listov).`,
+    waterSummer:'1× za 10–14 dní, hĺbkovo, "soak and dry"', waterWinter:'NEZALIEVAŤ DEC–FEB (chladná dormancia)',
+    self:'none', mist:'NIKDY!',
+    fertSummer:'1× za 6 týždňov, kaktusové 1/2 sily', fertWinter:'Nehnojiť',
+    soil:'Kaktusový + perlit + hrubý piesok (2:1:1) – mineralny', repot:'1× za 3–4 roky, terakota ideálna',
+    spring:'POSTUPNÉ prebudenie – malá zálievka. Pred plným slnkom aklimatizácia (popálenie!).',
+    summer:'PLNÉ slnko, hĺbková zálievka medzi preschnutím. Kvitnutie u dospelých – luxus!',
+    autumn:'Znižovanie zálievky. Pred zimou inšpekcia škodcov.',
+    winter:'CHLADNÁ dormancia 5–12 °C, BEZ vody. Kľúč ku kvitnutiu. Bez nej deformovaný rast.',
+    propagation:'Boční výhonky (offsets) – odštipni, zaschnúť 1 týždeň, do suchého substrátu.',
+    problems:'Hniloba na báze = preliatie zima. Vytiahnutý + bledý = málo svetla. Hnedé "korkové" plochy = staroba ALEBO popálenie.',
+    likes:'Plné slnko, sucho, chladná zima – sezónne kontrasty.',
+    warn:'Tŕne – pozor pri presádzaní (rukavice + papier). Väčšina NETOXICKÁ pre psy ✓.',
+    toxic:false, air:false },
+
+  { id:'p24', name:'Hosta', latin:'Hosta spp.', category:'foliage', emoji:'🌺',
+    temp:'15–24 °C leto, ZIMA 0–5 °C (POVINNÁ dormancia!)', humid:'50–60 %', light:'Polotieň až tieň – NIKDY priame slnko',
+    location:'shade', water:'settled', method:'top',
+    lightLevel:'2_medium', distance:'mid', lightAdvice:`Polotieň až tieň – Hosta NEZNÁŠA priame slnko (popáli listy do hodiny). Severná strana, 1–3 m od okna ideálne.`,
+    tips:`🍌 Banánová voda v sezóne (draslík). 🥚 Vápnik. ☕ Káva slabá OK (Hosta znesie kyslé). 🐌 Vonku: pivné pasce na slimáky alebo škrupinky drvené na vajcia ako bariéra.`,
+    airDetail:`NETESTOVANÁ v NASA – primárne záhradná rastlina. Široké lupene cez transpiráciu mierne zvyšujú vlhkosť. Žiadny VOC filter.`,
+    waterSummer:'2× týždeň, vždy mierne vlhká', waterWinter:'Pokojové obdobie – mierne vlhký, listy zomierajú',
+    self:'small', mist:'Občas v lete',
+    fertSummer:'1× mesačne, vyvážené', fertWinter:'Nehnojiť',
+    soil:'Univerzálny + kompost + perlit (2:1:1) – výživný', repot:'1× za 3 roky na jar pri prebudení',
+    spring:'Z dormancie – nové listy ako špáradlá. Presadiť ak treba.',
+    summer:'Plný rast, hĺbková zálievka. Slimáky (vonku).',
+    autumn:'Listy žltnú a vädnú – NORMÁLNE. Pripraviť dormanciu.',
+    winter:'POVINNÁ studená dormancia 0–5 °C 2–3 mesiace! Listy odumrú, len rízom prežíva. Garáž / chladná chodba / balkón.',
+    propagation:'Rozdelením rízomu na jar pri prebudení – ostrým nožom, každá časť s growing point. Veľmi ľahké!',
+    problems:'Spálene listy = priame slnko. Slimáky (vonku) = pasce. Žiadny rast na jar = nesplnená dormancia.',
+    likes:'Záhradná rastlina – tieň, vlhko, chladná zima.',
+    warn:'JEDOVATÁ pre psy (saponíny) – silné slintanie, vracanie, hnačka!',
+    toxic:true, air:false },
+
+  { id:'p25', name:'Maranta', latin:'Maranta leuconeura', category:'tropical', emoji:'🌱',
+    temp:'18–24 °C (min. 15 °C)', humid:'60–70 %', light:'Jasné rozptýlené, BEZ priameho slnka',
+    location:'near', water:'nazi', method:'top',
+    lightLevel:'3_bright', distance:'near', lightAdvice:`Jasné rozptýlené svetlo. Východný/severný parapet alebo 50 cm od slnečného okna. Priame slnko stratí farby listov.`,
+    tips:`🍌 Banánová voda 1× za 2 týždne (rýchly rast). 🍵 Vystátý čaj áno (kyslosť pomáha). ☕ Káva NIE. 🥚 Vápnik. 💧 LEN destilovaná/dažďová – fluór z vodovodu spôsobí hnedé špičky.`,
+    airDetail:`NETESTOVANÁ v NASA. Tropická rastlina – zvyšuje vlhkosť vzduchu cez transpiráciu (90% prijatej vody vydáva). Žiadny špecifický VOC filter.`,
+    waterSummer:'1× týždeň, vždy mierne vlhká', waterWinter:'1× za 10 dní',
+    self:'small', mist:'Denne v lete',
+    fertSummer:'1× za 2 týždne, polovičná sila', fertWinter:'Nehnojiť',
+    soil:'Univerzálny + rašelina + perlit (2:1:1)', repot:'1× za 2 roky, plytký široký kvetináč',
+    spring:'Hnojenie, presadiť ak treba.',
+    summer:'Stála vlhkosť, mistovať. Listy sa večer zdvíhajú ako modliace ruky.',
+    autumn:'Znížiť hnojenie.',
+    winter:'Drž teplo a vlhkosť (>15 °C). Kúrenie najťažšie obdobie.',
+    propagation:'Rozdelením trsu pri presádzaní. Aj stoplíkové rezky cez nodál do vody.',
+    problems:'Stáčanie listov = sucho/nízka vlhkosť. Hnedé okraje = chlór/fluór → destilovaná. Bledá = priame slnko.',
+    likes:'Brazílsky podrast – teplo, vlhko, polotieň. "Modlí sa" každý večer.',
+    warn:'BEZPEČNÁ pre psy ✓. Citlivá na chemikálie vo vode.',
+    toxic:false, air:true },
+
+  { id:'p26', name:'Chlorophytum zelenec', latin:'Chlorophytum comosum', category:'foliage', emoji:'🪴',
+    temp:'13–27 °C', humid:'30–60 %', light:'Jasné rozptýlené, znesie polotieň',
+    location:'near', water:'easy', method:'top',
+    lightLevel:'3_bright', distance:'mid', lightAdvice:`Jasné rozptýlené až polotieň. Hocikde v jasnej izbe. Priame slnko popáli listy.`,
+    tips:`🍌 Banánová voda super. ☕ Káva riedená OK. 🥚 Vápnik. 🍵 Čaj áno. 🍼 Plantlets sa zakorenia v pohári vody za 3-5 dní – dar pre kamarátov / nová generácia v inom kvetináči.`,
+    airDetail:`TESTOVANÁ NASA (1989). Odstraňuje: ✓ formaldehyd ✓ xylén ✓ toluén ✓ oxid uhoľnatý. Top 10 čističov vzduchu z NASA štúdie. Skvelá pre kuchyňu.`,
+    waterSummer:'1× týždeň', waterWinter:'1× za 10–14 dní',
+    self:'small', mist:'Netreba',
+    fertSummer:'1× za 3 týždne, 1/2 sily', fertWinter:'Nehnojiť',
+    soil:'Univerzálny + perlit (3:1)', repot:'1× za 2 roky',
+    spring:'Hnojenie, presadiť.',
+    summer:'Vyrába "deti" na výhonkoch.',
+    autumn:'Znížiť.',
+    winter:'Pomalý rast.',
+    propagation:'NAJĽAHŠIE – odstrihni "dieťa" z výhonku, do vody alebo pôdy.',
+    problems:'Hnedé špičky = chlór/fluór. Žlté = preliatie.',
+    likes:'Najnenáročnejšia, vďačná, robí nové rastlinky sama.',
+    warn:'BEZPEČNÝ pre psy ✓.',
+    toxic:false, air:true }
+];
+
+const METHOD_LABEL = {
+  top:    'Zhora na zem',
+  tray:   'Do podmisky',
+  soak:   'Namáčanie celého kvetináča',
+  selfw:  'Iba samozavlažovač',
+  spray:  'Rosenie / sprejovanie'
+};
+
+// ============ STAV ============
+// ============ ÚČTY (fake login pre rodinu/priateľov) ============
+const ACCOUNTS = [
+  { user: 'valco',      pass: 'kraldzungle1',  name: 'Valco',        title: 'Kráľ Džungle 🌵', isAdmin: true },
+  { user: 'magnolia',   pass: 'kvet2026',      name: 'Magnolia',     title: 'Kvetná Kráľovná 🌸' },
+  { user: 'bambusak',   pass: 'bambus99',      name: 'Bambuśák',     title: 'Ohybný Bambus 🎋' },
+  { user: 'kaktusino',  pass: 'trnky42',       name: 'Kaktusino',    title: 'Pichľavý Priateľ 🌵' },
+  { user: 'listovka',   pass: 'sirokyl33',     name: 'Listovka',     title: 'Veľkolistá Dáma 🌿' },
+  { user: 'korenacik',  pass: 'hlbokoc8',      name: 'Koreňáčik',   title: 'Hlboký Koreň 🪴' },
+  { user: 'palmica',    pass: 'tropik55',      name: 'Palmička',     title: 'Tropická Senzácia 🌴' },
+  { user: 'suculent',   pass: 'tucky7',        name: 'Šučulentík',  title: 'Tučný Optimista 🫙' },
+  { user: 'lianakar',   pass: 'lezem88',       name: 'Liankár',      title: 'Neúnavný Leziaci 🍃' },
+  { user: 'mchovina',   pass: 'vlhkem4',       name: 'Mchovinka',    title: 'Tichý Zelený Vankúš 🟢' }
+];
+
+const SESSION_KEY = 'valcovaDzunglaren_session';
+let currentUser = null;
+
+function tryLogin(user, pass) {
+  const acc = ACCOUNTS.find(a => a.user.toLowerCase() === user.toLowerCase().trim() && a.pass === pass.trim());
+  if (acc) {
+    currentUser = acc;
+    try { localStorage.setItem(SESSION_KEY, acc.user); } catch (e) {}
+    return true;
+  }
+  return false;
+}
+
+// ============ LOGIN UI ============
+function doLogin() {
+  try {
+    var u = document.getElementById('loginUser').value;
+    var p = document.getElementById('loginPass').value;
+    var err = document.getElementById('loginError');
+    if (!u || !p) {
+      if (err) err.textContent = '⚠ Vyplň meno aj heslo';
+      return false;
+    }
+    if (tryLogin(u, p)) {
+      if (err) err.textContent = '';
+      sessionFavsCleared = false;
+      showMainApp();
+    } else {
+      if (err) err.textContent = '⚠ Nesprávny používateľ alebo heslo';
+      var pass = document.getElementById('loginPass');
+      if (pass) pass.value = '';
+    }
+  } catch (e) {
+    var err = document.getElementById('loginError');
+    if (err) err.textContent = '⚠ Chyba: ' + e.message;
+  }
+  return false;
+}
+
+function showMainApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'block';
+  loadFavs();
+  updateWelcome();
+  applyAdminUI();
+  renderGallery();
+}
+
+function updateWelcome() {
+  if (!currentUser) return;
+  var rankBadge = getRankBadge(currentUser.user);
+  document.getElementById('welcomeMsg').innerHTML =
+    'Ahoj, <b>' + escapeHtml(currentUser.name) + '</b>! &nbsp;<span class="rank-pill">' + rankBadge + '</span>';
+}
+
+function applyAdminUI() {
+  var acc = currentUser ? ACCOUNTS.find(function(a) { return a.user === currentUser.user; }) : null;
+  var isAdmin = acc && acc.isAdmin;
+  var show = function(el) { var e = document.getElementById(el); if (e) e.style.display = ''; };
+  var hide = function(el) { var e = document.getElementById(el); if (e) e.style.display = 'none'; };
+  if (isAdmin) {
+    show('btnEdit'); show('btnDelete');
+    show('btnAddPlant'); show('btnReset'); show('btnImport');
+  } else {
+    hide('btnEdit'); hide('btnDelete');
+    hide('btnAddPlant'); hide('btnReset'); hide('btnImport');
+  }
+}
+
+function logout() {
+  if (!confirm('Naozaj sa odhlásiť?')) return;
+  try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
+  currentUser = null;
+  location.reload();
+}
+
+function restoreSession() {
+  try {
+    const saved = localStorage.getItem(SESSION_KEY);
+    if (!saved) return false;
+    const acc = ACCOUNTS.find(a => a.user === saved);
+    if (acc) { currentUser = acc; return true; }
+  } catch (e) {}
+  return false;
+}
+
+// ============ OBĽÚBENÉ (favorites) ============
+let allFavs = {}; // { user: [plantIds] }
+
+function loadFavs() {
+  try {
+    const saved = localStorage.getItem(FAVS_KEY);
+    allFavs = saved ? JSON.parse(saved) : {};
+  } catch (e) { allFavs = {}; }
+}
+function saveFavs() {
+  try { localStorage.setItem(FAVS_KEY, JSON.stringify(allFavs)); }
+  catch (e) {}
+}
+function getFavs(userKey) {
+  return allFavs[userKey] || [];
+}
+function isFav(plantId) {
+  if (!currentUser) return false;
+  return getFavs(currentUser.user).includes(plantId);
+}
+function toggleFav(plantId) {
+  if (!currentUser) return;
+  const u = currentUser.user;
+  if (!allFavs[u]) allFavs[u] = [];
+  const idx = allFavs[u].indexOf(plantId);
+  if (idx >= 0) {
+    allFavs[u].splice(idx, 1);
+    showToast('💔 Odstránené z obľúbených');
+  } else {
+    allFavs[u].push(plantId);
+    showToast('❤️ Pridané do obľúbených');
+  }
+  saveFavs();
+  updateWelcome(); // živý update ranku
+  renderGallery();
+}
+// Vráti zoznam usernamov ktorí majú túto rastlinu medzi obľúbenými
+function whoHas(plantId) {
+  return Object.keys(allFavs).filter(u => allFavs[u] && allFavs[u].includes(plantId));
+}
+
+// Spoločná databáza rastlín (rodinná džungľa)
+const PLANTS_KEY = 'valcovaDzunglaren_v1';
+
+// Obľúbené per-user: { "norika": ["p1", "p3"], "martin": ["p2"] }
+const FAVS_KEY = 'valcovaDzunglaren_favs_v1';
+
+const STORAGE_KEY = PLANTS_KEY; // legacy alias
+
+// Test, či localStorage funguje (môže byť blokovaný v iframe alebo private mode)
+let storageWorks = false;
+try {
+  localStorage.setItem('__test__', '1');
+  localStorage.removeItem('__test__');
+  storageWorks = true;
+} catch (e) {
+  console.warn('localStorage nefunguje:', e);
+}
+
+let plants = loadPlants();
+let currentId = null;
+
+function loadPlants() {
+  if (!storageWorks) return [...DEFAULT_PLANTS];
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [...DEFAULT_PLANTS];
+  } catch (e) { return [...DEFAULT_PLANTS]; }
+}
+function savePlants() {
+  if (!storageWorks) {
+    showToast('⚠ Ukladanie nefunguje – stiahni HTML súbor a otvor lokálne');
+    return false;
+  }
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(plants));
+    return true;
+  } catch (e) {
+    showToast('⚠ Nepodarilo sa uložiť: ' + e.message);
+    return false;
+  }
+}
+
+// ============ RENDER GALÉRIA ============
+let currentFilter = 'all'; // 'all', 'mine', alebo username
+
+function renderFilterBar() {
+  const bar = document.getElementById('filterBar');
+  if (!bar) return;
+  const myCount = currentUser ? getFavs(currentUser.user).length : 0;
+  let html = `
+    <button class="ftab ${currentFilter==='all'?'active':''}" onclick="setFilter('all')">🌿 Všetky <span class="badge">${plants.length}</span></button>
+    <button class="ftab ${currentFilter==='mine'?'active':''}" onclick="setFilter('mine')">❤️ Moje <span class="badge">${myCount}</span></button>
+  `;
+  ACCOUNTS.forEach(a => {
+    if (currentUser && a.user === currentUser.user) return; // self covered by Moje
+    const cnt = getFavs(a.user).length;
+    if (cnt === 0) return; // ukáž len členov ktorí majú niečo
+    html += `<button class="ftab ${currentFilter===a.user?'active':''}" onclick="setFilter('${a.user}')">${escapeHtml(a.name)} <span class="badge">${cnt}</span></button>`;
+  });
+  bar.innerHTML = html;
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  renderGallery();
+}
+
+function getFilteredPlants() {
+  if (currentFilter === 'all') return plants;
+  if (currentFilter === 'mine') {
+    if (!currentUser) return plants;
+    const myFavs = getFavs(currentUser.user);
+    return plants.filter(p => myFavs.includes(p.id));
+  }
+  // Konkrétny user
+  const userFavs = getFavs(currentFilter);
+  return plants.filter(p => userFavs.includes(p.id));
+}
+
+function renderGallery() {
+  renderFilterBar();
+  const g = document.getElementById('gallery');
+  g.innerHTML = '';
+  const list = getFilteredPlants();
+  if (list.length === 0) {
+    g.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--ink-soft);font-style:italic;font-family:'Fraunces',serif;">Tu zatiaľ nič nie je. Klikni na ❤️ pri rastline aby si ju pridal medzi obľúbené.</div>`;
+    document.getElementById('count').textContent = `0 rastlín v tomto filtri`;
+    return;
+  }
+  list.forEach((p, i) => {
+    const cat = CATEGORIES[p.category];
+    const card = document.createElement('div');
+    card.className = 'plant-card';
+    card.style.animationDelay = (i * 0.03) + 's';
+    card.onclick = () => openModal(p.id);
+
+    const owners = whoHas(p.id);
+    const ownersHtml = owners.length ? `<div class="owners">${owners.map(u => {
+      const acc = ACCOUNTS.find(a => a.user === u);
+      const isMe = currentUser && u === currentUser.user;
+      const label = acc ? acc.name : u;
+      return `<span class="owner ${isMe?'me':''}">${escapeHtml(label)}</span>`;
+    }).join('')}</div>` : '';
+
+    card.innerHTML = `
+      <button class="fav-btn ${isFav(p.id)?'is-fav':''}" onclick="event.stopPropagation(); toggleFav('${p.id}');" title="${isFav(p.id)?'Odstrániť z obľúbených':'Pridať do obľúbených'}">
+        ${isFav(p.id) ? '❤️' : '🤍'}
+      </button>
+      ${p.toxic ? '<div class="danger-dot" title="Jedovatá pre psa">!</div>' : ''}
+      <div class="color-strip" style="background:${cat.bg};color:${cat.color};">${p.emoji}</div>
+      <div class="body">
+        <div class="name">${escapeHtml(p.name)}</div>
+        <div class="latin">${escapeHtml(p.latin)}</div>
+        <div class="meta">
+          <span class="tag">${WATER_LABEL[p.water].icons}</span>
+          <span class="tag">${cat.label}</span>
+        </div>
+        ${ownersHtml}
+      </div>
+    `;
+    g.appendChild(card);
+  });
+  const total = plants.length;
+  const filtered = list.length;
+  document.getElementById('count').textContent = filtered === total
+    ? `${total} rastlín v zbierke`
+    : `${filtered} z ${total} rastlín`;
+}
+
+// ============ ŠTÍTOK & KARTA HTML ============
+// Parser pre eco tipy – z textu vytiahne ikony surovín + áno/nie verdikt
+function parseEcoTips(tipsText) {
+  if (!tipsText) return [];
+  // Mapovanie: emoji suroviny → ako vyhľadať context vetu
+  const sources = [
+    { emoji: '🍌', match: /🍌|banán/i, name: 'Banán' },
+    { emoji: '☕', match: /☕|káva/i, name: 'Káva' },
+    { emoji: '🍵', match: /🍵|čaj/i, name: 'Čaj' },
+    { emoji: '🥚', match: /🥚|škrupin|vápn/i, name: 'Vajce' },
+    { emoji: '🪵', match: /🪵|škoric/i, name: 'Škorica' },
+    { emoji: '🌧', match: /🌧|dažď/i, name: 'Dažďovka' },
+    { emoji: '❄️', match: /❄️|sneh/i, name: 'Sneh' },
+    { emoji: '💧', match: /destilov/i, name: 'Destilovaná' },
+    { emoji: '🪨', match: /🪨|keramz|drť|pemz/i, name: 'Keramzit / drť' },
+    { emoji: '🐟', match: /🐟|akvár/i, name: 'Akvár. voda' },
+  ];
+
+  const result = [];
+  for (const src of sources) {
+    if (!src.match.test(tipsText)) continue;
+    // Nájdi vetu / segment ktorý obsahuje toto slovo
+    const segments = tipsText.split(/(?<=[.!])\s+|\s*\.\s+/).filter(s => s.length > 2);
+    let context = segments.find(s => src.match.test(s)) || '';
+    context = context.replace(/^[🍌☕🍵🥚🪵🌧❄️💧🪨🐟🌿]+\s*/u, '').trim();
+
+    // Detekcia verdiktu
+    let verdict = '';
+    let cls = 'neutral';
+    const lower = context.toLowerCase();
+
+    if (/\bnie\b|nedávaj|absolut|nikdy|žiadne|striktne/i.test(context) && !/občas/i.test(context)) {
+      verdict = 'NIE';
+      cls = 'no';
+      // Skús pridať dôvod (-/–/lebo)
+      const reason = context.match(/[-–]\s*([a-zľščťžýáíéúäňôď][^.!]{3,30})/i);
+      if (reason) verdict += ' — ' + reason[1].trim();
+      else if (/uhnije|uhnit|hniloba/i.test(context)) verdict += ' — uhnije';
+      else if (/spáli|popáli|horiace/i.test(context)) verdict += ' — popáli';
+      else if (/dehydru/i.test(context)) verdict += ' — dehydruje';
+    } else if (/pri presád|pres[áa]d/i.test(context)) {
+      verdict = '! pri presádzaní';
+      cls = 'special';
+    } else if (/občas|niekoľk|raz mesačne|nepríd|stačí|riedená/i.test(lower)) {
+      verdict = 'občas';
+      cls = 'maybe';
+    } else if (/výborne|skvelá|top|ideáln|ľahšie|najľahš|milujú/i.test(lower)) {
+      verdict = 'ÁNO ★';
+      cls = 'yes-strong';
+    } else if (/áno|2× týž|1× týž|denne|týždenne|pravidelne|každý/i.test(lower)) {
+      // Skús extract frekvenciu
+      const freq = context.match(/(\d×\s*(?:týž|mesač|2 týž|2 mesi)\w*)/i);
+      verdict = freq ? 'ÁNO, ' + freq[1] : 'ÁNO';
+      cls = 'yes';
+    } else {
+      verdict = 'ÁNO';
+      cls = 'yes';
+    }
+
+    result.push({ emoji: src.emoji, name: src.name, verdict, cls });
+  }
+
+  return result;
+}
+
+function buildStitok(p) {
+  const cat = CATEGORIES[p.category];
+  const w = WATER_LABEL[p.water];
+  const mistText = (p.mist || '').toLowerCase();
+  const noMist = mistText.includes('nikdy') || mistText.includes('netreba') || mistText.includes('nemísiť') || mistText.includes('nekropiť');
+  const mistOk = !noMist && mistText.trim().length > 0;
+  const mistShort = mistOk ? (p.mist.length > 22 ? p.mist.slice(0, 22) + '…' : p.mist) : 'Nie';
+
+  // Svetlo info
+  const lightLevel = p.lightLevel && LIGHT_LEVELS[p.lightLevel] ? LIGHT_LEVELS[p.lightLevel] : null;
+  const distance = p.distance && DISTANCE_LABEL[p.distance] ? DISTANCE_LABEL[p.distance] : null;
+
+  // Eco tipy → štruktúrované
+  const ecoTips = parseEcoTips(p.tips || '');
+  const tipsHtml = ecoTips.length ? ecoTips.slice(0, 4).map(t =>
+    `<div class="eco-tip eco-${t.cls}"><span class="et-em">${t.emoji}</span><span class="et-txt">${escapeHtml(t.name)} — <b>${escapeHtml(t.verdict)}</b></span></div>`
+  ).join('') : '';
+
+  // Skrátené hnojenie
+  const fertSummerShort = (p.fertSummer || '').split(',')[0];
+  const fertWinterShort = (p.fertWinter || '').split(',')[0];
+
+  // Skrátené presádzanie
+  const repotShort = (p.repot || '').split(',')[0].split('(')[0].trim();
+
+  return `
+    <div class="stitok stitok-front">
+      <div class="head" style="background:${cat.color};">
+        <div class="nm">${escapeHtml(p.name)}</div>
+        <div class="lt">${escapeHtml(p.latin)}</div>
+      </div>
+      <div class="body">
+        <div class="srow">
+          <span class="ic-big">${w.icons}</span>
+          <span class="srow-text"><b>Voda</b><span class="srow-sub">${escapeHtml(w.text)}</span></span>
+        </div>
+        <div class="srow">
+          <span class="ic-big">📅</span>
+          <span class="srow-text"><b>Ako často polievať</b><span class="srow-sub">L: ${escapeHtml(p.waterSummer.split(',')[0])}<br>Z: ${escapeHtml(p.waterWinter.split(',')[0])}</span></span>
+        </div>
+        <div class="srow">
+          <span class="ic-big">💦</span>
+          <span class="srow-text"><b>Spôsob</b><span class="srow-sub">${escapeHtml(METHOD_LABEL[p.method] || 'Zhora na zem')}</span></span>
+        </div>
+        <div class="srow">
+          <span class="ic-big">${mistOk ? '🌬' : '🚫'}</span>
+          <span class="srow-text"><b>Popráš listy?</b><span class="srow-sub">${mistOk ? escapeHtml(mistShort) : 'Nie – môže škodiť'}</span></span>
+        </div>
+      </div>
+      <div class="foot">
+        <span class="badge ${p.toxic ? 'toxic' : 'safe'}">${p.toxic ? '☣️ Jedovatá pre psa' : '🐕 Bezpečná pre psa'}</span>
+      </div>
+    </div>
+    <div class="stitok stitok-back">
+      <div class="head" style="background:${cat.color};">
+        <div class="nm">${escapeHtml(p.name)}</div>
+        <div class="lt">${escapeHtml(p.latin)}</div>
+      </div>
+      <div class="body">
+        ${lightLevel ? `<div class="srow"><span class="ic-big">${lightLevel.icon}</span><span class="srow-text"><b>Svetlo</b><span class="srow-sub">${escapeHtml(lightLevel.short)}${distance ? ' · ' + escapeHtml(distance.short) : ''}</span></span></div>` : ''}
+        <div class="srow">
+          <span class="ic-big">🪴</span>
+          <span class="srow-text"><b>Samozavlažovač</b><span class="srow-sub">${escapeHtml(SELF_LABEL[p.self])}</span></span>
+        </div>
+        <div class="srow">
+          <span class="ic-big">🌱</span>
+          <span class="srow-text"><b>Hnojenie</b><span class="srow-sub">L: ${escapeHtml(fertSummerShort)}<br>Z: ${escapeHtml(fertWinterShort)}</span></span>
+        </div>
+        ${repotShort ? `<div class="srow"><span class="ic-big">🪟</span><span class="srow-text"><b>Presádzanie</b><span class="srow-sub">${escapeHtml(repotShort)}</span></span></div>` : ''}
+        ${tipsHtml ? `<div class="eco-tips">${tipsHtml}</div>` : ''}
+      </div>
+      <div class="foot">
+        ${p.air ? '<span class="badge air-mini">🌬 Čistí vzduch (NASA)</span>' : '<span style="font-size:6.5pt;color:var(--ink-soft);font-style:italic;">Valcova Džungláreň</span>'}
+      </div>
+    </div>
+  `;
+}
+
+function buildKarta(p) {
+  const cat = CATEGORIES[p.category];
+  const w = WATER_LABEL[p.water];
+  return `
+    <div class="karta">
+      <div class="head" style="background:${cat.color};">
+        <div class="icon">${p.emoji}</div>
+        <div class="nm">${escapeHtml(p.name)}</div>
+        <div class="lt">${escapeHtml(p.latin)}</div>
+        
+      </div>
+      <div class="body">
+        <div class="sec"><div class="lbl">🌡️ Teplota</div><div class="val">${escapeHtml(p.temp || '–')}</div></div>
+        <div class="sec"><div class="lbl">💨 Vlhkosť</div><div class="val">${escapeHtml(p.humid || '–')}</div></div>
+        <div class="sec"><div class="lbl">☀️ Svetlo</div><div class="val">${escapeHtml(getLightShort(p))}</div></div>
+        <div class="sec"><div class="lbl">📍 Vzdialenosť</div><div class="val">${escapeHtml(getDistanceShort(p) || '–')}</div></div>
+        <div class="sec full"><div class="lbl">🌍 Odporúčanie</div><div class="val">${escapeHtml(p.lightAdvice || p.light || '–')}</div></div>
+        <div class="sec"><div class="lbl">💧 Voda</div><div class="val"><b>${w.text}</b></div></div>
+        <div class="sec"><div class="lbl">💦 Spôsob</div><div class="val">${escapeHtml(METHOD_LABEL[p.method] || '–')}</div></div>
+        <div class="sec"><div class="lbl">🪴 Samozavl.</div><div class="val">${escapeHtml(SELF_LABEL[p.self])}</div></div>
+        <div class="sec full"><div class="lbl">📅 Zálievka L / Z</div><div class="val">L: ${escapeHtml(p.waterSummer)}<br>Z: ${escapeHtml(p.waterWinter)}</div></div>
+        <div class="sec full"><div class="lbl">🌬 Kropenie</div><div class="val">${escapeHtml(p.mist || '–')}</div></div>
+        <div class="sec full"><div class="lbl">🌱 Hnojenie L / Z</div><div class="val">L: ${escapeHtml(p.fertSummer)}<br>Z: ${escapeHtml(p.fertWinter)}</div></div>
+        <div class="sec full"><div class="lbl">📦 Substrát</div><div class="val">${escapeHtml(p.soil)}</div></div>
+        <div class="sec full"><div class="lbl">🪟 Presádzanie</div><div class="val">${escapeHtml(p.repot || '–')}</div></div>
+      </div>
+      <div class="foot">
+        <span class="badge ${p.toxic ? 'toxic' : 'safe'}">🐕 ${p.toxic ? 'Jedovatá' : 'Bezpečná'}</span>
+        ${p.air ? '<span class="badge air">🌬 Čistí vzduch</span>' : '<span style="font-size:6.5pt;color:var(--ink-soft);">—</span>'}
+      </div>
+    </div>
+    <div class="karta" style="margin-top:16px;">
+      <div class="head" style="background:${cat.color};">
+        <div class="nm">${escapeHtml(p.name)}</div>
+        
+      </div>
+      <div class="body" style="grid-template-columns: 1fr;">
+        <div class="sec full">
+          <div class="lbl">📅 Sezónny kalendár</div>
+          <div class="seasons">
+            <div class="season spring"><div class="s-lbl">🌱 Jar</div>${escapeHtml(p.spring || '–')}</div>
+            <div class="season summer"><div class="s-lbl">☀️ Leto</div>${escapeHtml(p.summer || '–')}</div>
+            <div class="season autumn"><div class="s-lbl">🍂 Jeseň</div>${escapeHtml(p.autumn || '–')}</div>
+            <div class="season winter"><div class="s-lbl">❄️ Zima</div>${escapeHtml(p.winter || '–')}</div>
+          </div>
+        </div>
+        <div class="sec full"><div class="lbl">🌿 Množenie</div><div class="val">${escapeHtml(p.propagation || '–')}</div></div>
+        <div class="sec full"><div class="lbl">⚠️ Časté problémy</div><div class="val">${escapeHtml(p.problems || '–')}</div></div>
+        <div class="sec full"><div class="lbl">💡 Eco tipy & triky</div><div class="val">${escapeHtml(p.tips || '–')}</div></div>
+        <div class="sec full"><div class="lbl">🌬 Čistenie vzduchu (NASA)</div><div class="val">${escapeHtml(p.airDetail || (p.air ? 'Áno (mierne)' : 'Nie'))}</div></div>
+        <div class="sec full"><div class="lbl">❤️ Čo má rád</div><div class="val">${escapeHtml(p.likes)}</div></div>
+        <div class="sec full"><div class="lbl">⚠️ Pozor</div><div class="val">${escapeHtml(p.warn)}</div></div>
+      </div>
+      <div class="foot">
+        <span style="font-size:5.8pt;color:var(--ink-soft);font-style:italic;">Valcova Džungláreň · est. 2026</span>
+      </div>
+    </div>
+  `;
+}
+
+// ============ MODAL ============
+function openModal(id) {
+  const p = plants.find(x => x.id === id);
+  if (!p) return;
+  currentId = id;
+  document.getElementById('modalName').textContent = p.name;
+  document.getElementById('modalLatin').textContent = p.latin;
+  document.getElementById('checkLinks').innerHTML = buildCheckLinks(p);
+  document.getElementById('stitokPreview').innerHTML = buildStitok(p);
+  document.getElementById('kartaPreview').innerHTML = buildKarta(p);
+  document.getElementById('editor').classList.remove('active');
+  fillEditor(p);
+  updateFavButton();
+  applyAdminUI(); // zobraziť/skryť edit/delete podľa roly
+  document.getElementById('modal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  // Auto-fit štítky po renderi (treba počkať na layout)
+  requestAnimationFrame(() => autoFitStitky());
+}
+
+// Auto-scale font štítka ak obsah pretečie výšku
+function autoFitStitky() {
+  const stitky = document.querySelectorAll('#stitokPreview .stitok');
+  stitky.forEach(stitok => {
+    const body = stitok.querySelector('.body');
+    const foot = stitok.querySelector('.foot');
+    if (!body) return;
+    // Maximálna dostupná výška = výška stitoka mínus head minus foot
+    const head = stitok.querySelector('.head');
+    const headH = head ? head.offsetHeight : 0;
+    const footH = foot ? foot.offsetHeight : 0;
+    const stitokH = stitok.offsetHeight;
+    const maxBodyH = stitokH - headH - footH - 2; // 2px buffer
+
+    // Začni od default font-size a zmenšuj ak treba
+    let fontSize = 16; // 16pt base = 21.3px
+    body.style.fontSize = '';
+    body.style.gap = '';
+
+    // Iteratívne zmenšovanie
+    let iterations = 0;
+    while (body.scrollHeight > maxBodyH && fontSize > 8 && iterations < 20) {
+      fontSize -= 0.5;
+      body.style.fontSize = fontSize + 'px';
+      // Zmenšuj aj gap
+      const gap = Math.max(2, Math.round(fontSize * 0.4));
+      body.style.gap = gap + 'px';
+      iterations++;
+    }
+  });
+}
+
+function buildCheckLinks(p) {
+  // Encoduj latinský aj slovenský názov pre rôzne vyhľadávania
+  const lat = encodeURIComponent(p.latin || p.name);
+  const sk = encodeURIComponent(p.name);
+  const latPlain = encodeURIComponent(p.latin || p.name);
+  return `
+    <div class="hint">Skontroluj, či je to naozaj ona:</div>
+    <a href="https://www.google.com/search?q=${lat}&tbm=isch" target="_blank" rel="noopener noreferrer">🖼 Google obrázky</a>
+    <a href="https://www.google.com/search?q=${sk}+rastlina&tbm=isch" target="_blank" rel="noopener noreferrer">🇸🇰 Slovenské obrázky</a>
+    <a href="https://www.google.com/search?q=${latPlain}+plant+care" target="_blank" rel="noopener noreferrer">🔍 Google (info)</a>
+    <a href="https://en.wikipedia.org/wiki/Special:Search?search=${latPlain}" target="_blank" rel="noopener noreferrer">📖 Wikipedia</a>
+  `;
+}
+function updateFavButton() {
+  const btn = document.getElementById('modalFavBtn');
+  if (!btn || !currentId) return;
+  if (isFav(currentId)) {
+    btn.innerHTML = '❤️ V obľúbených';
+    btn.classList.remove('outline');
+  } else {
+    btn.innerHTML = '🤍 Pridať k obľúbeným';
+  }
+}
+function toggleFavModal() {
+  if (!currentId) return;
+  toggleFav(currentId);
+  updateFavButton();
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('active');
+  document.body.style.overflow = '';
+  currentId = null;
+}
+
+// ============ EDITOR ============
+function toggleEditor() {
+  document.getElementById('editor').classList.toggle('active');
+}
+function fillEditor(p) {
+  document.getElementById('ed-name').value = p.name;
+  document.getElementById('ed-latin').value = p.latin;
+  document.getElementById('ed-category').value = p.category;
+  document.getElementById('ed-emoji').value = p.emoji;
+  document.getElementById('ed-water').value = p.water;
+  document.getElementById('ed-water-summer').value = p.waterSummer;
+  document.getElementById('ed-water-winter').value = p.waterWinter;
+  document.getElementById('ed-method').value = p.method || 'top';
+  document.getElementById('ed-location').value = p.location || 'near';
+  document.getElementById('ed-lightLevel').value = p.lightLevel || '';
+  document.getElementById('ed-distance').value = p.distance || '';
+  document.getElementById('ed-lightAdvice').value = p.lightAdvice || '';
+  document.getElementById('ed-self').value = p.self;
+  document.getElementById('ed-fert-summer').value = p.fertSummer;
+  document.getElementById('ed-fert-winter').value = p.fertWinter;
+  document.getElementById('ed-mist').value = p.mist || '';
+  document.getElementById('ed-soil').value = p.soil;
+  document.getElementById('ed-repot').value = p.repot || '';
+  document.getElementById('ed-temp').value = p.temp || '';
+  document.getElementById('ed-humid').value = p.humid || '';
+  document.getElementById('ed-light').value = p.light || '';
+  document.getElementById('ed-spring').value = p.spring || '';
+  document.getElementById('ed-summer').value = p.summer || '';
+  document.getElementById('ed-autumn').value = p.autumn || '';
+  document.getElementById('ed-winter').value = p.winter || '';
+  document.getElementById('ed-propagation').value = p.propagation || '';
+  document.getElementById('ed-problems').value = p.problems || '';
+  document.getElementById('ed-tips').value = p.tips || '';
+  document.getElementById('ed-airDetail').value = p.airDetail || '';
+  document.getElementById('ed-likes').value = p.likes;
+  document.getElementById('ed-warn').value = p.warn;
+  document.getElementById('ed-toxic').value = String(p.toxic);
+  document.getElementById('ed-air').value = String(p.air);
+}
+function saveEdit() {
+  const idx = plants.findIndex(x => x.id === currentId);
+  if (idx === -1) return;
+  plants[idx] = {
+    ...plants[idx],
+    name: document.getElementById('ed-name').value,
+    latin: document.getElementById('ed-latin').value,
+    category: document.getElementById('ed-category').value,
+    emoji: document.getElementById('ed-emoji').value || '🌿',
+    water: document.getElementById('ed-water').value,
+    waterSummer: document.getElementById('ed-water-summer').value,
+    waterWinter: document.getElementById('ed-water-winter').value,
+    method: document.getElementById('ed-method').value,
+    location: document.getElementById('ed-location').value,
+    lightLevel: document.getElementById('ed-lightLevel').value,
+    distance: document.getElementById('ed-distance').value,
+    lightAdvice: document.getElementById('ed-lightAdvice').value,
+    self: document.getElementById('ed-self').value,
+    fertSummer: document.getElementById('ed-fert-summer').value,
+    fertWinter: document.getElementById('ed-fert-winter').value,
+    mist: document.getElementById('ed-mist').value,
+    soil: document.getElementById('ed-soil').value,
+    repot: document.getElementById('ed-repot').value,
+    temp: document.getElementById('ed-temp').value,
+    humid: document.getElementById('ed-humid').value,
+    light: document.getElementById('ed-light').value,
+    spring: document.getElementById('ed-spring').value,
+    summer: document.getElementById('ed-summer').value,
+    autumn: document.getElementById('ed-autumn').value,
+    winter: document.getElementById('ed-winter').value,
+    propagation: document.getElementById('ed-propagation').value,
+    problems: document.getElementById('ed-problems').value,
+    tips: document.getElementById('ed-tips').value,
+    airDetail: document.getElementById('ed-airDetail').value,
+    likes: document.getElementById('ed-likes').value,
+    warn: document.getElementById('ed-warn').value,
+    toxic: document.getElementById('ed-toxic').value === 'true',
+    air: document.getElementById('ed-air').value === 'true'
+  };
+  const ok = savePlants();
+  renderGallery();
+  // Re-render náhľadov bez zatvorenia editora
+  document.getElementById('stitokPreview').innerHTML = buildStitok(plants[idx]);
+  document.getElementById('kartaPreview').innerHTML = buildKarta(plants[idx]);
+  document.getElementById('modalName').textContent = plants[idx].name;
+  document.getElementById('modalLatin').textContent = plants[idx].latin;
+  if (ok) showToast('✓ Uložené do pamäte prehliadača');
+}
+
+function addNewPlant() {
+  const id = 'p' + Date.now();
+  const newP = {
+    id, name:'Nová rastlina', latin:'Nomen nescio', category:'foliage', emoji:'🌿',
+    temp:'18–24 °C', humid:'40–60 %', light:'Jasné rozptýlené',
+    water:'settled', waterSummer:'1× týždeň', waterWinter:'1× za 10 dní', method:'top',
+    location:'near', self:'none', fertSummer:'1× mesačne', fertWinter:'nehnojiť',
+    mist:'občas', soil:'univerzálny', repot:'1× za 2 roky na jar',
+    spring:'', summer:'', autumn:'', winter:'',
+    propagation:'', problems:'', tips:'',
+    likes:'', warn:'', toxic:false, air:false
+  };
+  plants.push(newP);
+  savePlants();
+  renderGallery();
+  openModal(id);
+  document.getElementById('editor').classList.add('active');
+}
+
+function deletePlant() {
+  if (!currentId) return;
+  if (!confirm('Naozaj zmazať túto rastlinu?')) return;
+  plants = plants.filter(p => p.id !== currentId);
+  savePlants();
+  renderGallery();
+  closeModal();
+  showToast('Zmazané');
+}
+
+// ============ TLAČ ============
+function printCurrent() {
+  const p = plants.find(x => x.id === currentId);
+  if (!p) {
+    showToast('⚠ Najprv vyber rastlinu');
+    return;
+  }
+  const printArea = document.getElementById('printArea');
+  if (!printArea) {
+    showToast('⚠ Print area chýba');
+    return;
+  }
+  printArea.innerHTML = buildStitok(p) + buildKarta(p);
+  // Auto-fit štítky aj v print area
+  requestAnimationFrame(() => {
+    document.querySelectorAll('#printArea .stitok').forEach(s => {
+      const body = s.querySelector('.body');
+      const head = s.querySelector('.head');
+      const foot = s.querySelector('.foot');
+      if (!body || !head || !foot) return;
+      const maxH = s.offsetHeight - head.offsetHeight - foot.offsetHeight - 2;
+      let fs = 16; let iter = 0;
+      while (body.scrollHeight > maxH && fs > 8 && iter < 20) {
+        fs -= 0.5;
+        body.style.fontSize = fs + 'px';
+        body.style.gap = Math.max(2, Math.round(fs * 0.4)) + 'px';
+        iter++;
+      }
+    });
+  });
+  showToast('🖨 Otváram tlač...');
+  // Dlhší timeout pre Chrome aby stihol render pred print dialogom
+  setTimeout(() => {
+    try {
+      window.print();
+    } catch (e) {
+      showToast('⚠ Chyba pri tlači: ' + e.message);
+    }
+  }, 400);
+}
+
+// ============ EXPORT / IMPORT ============
+function exportData() {
+  const blob = new Blob([JSON.stringify(plants, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'nase-rastliny-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✓ Stiahnuté');
+}
+function importData() { document.getElementById('importFile').click(); }
+function handleImport(ev) {
+  const file = ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+
+      // Typ 1: Pole rastlín (export celej databázy)
+      if (Array.isArray(data)) {
+        plants = data;
+        savePlants();
+        renderGallery();
+        showToast('✓ Importovaná celá databáza');
+        return;
+      }
+
+      // Typ 2: Otvorenie existujúcej rastliny: { "openPlantId": "p2" }
+      if (data.openPlantId) {
+        const p = plants.find(x => x.id === data.openPlantId);
+        if (p) {
+          renderGallery();
+          openModal(data.openPlantId);
+          showToast('✓ ' + p.name);
+        } else {
+          showToast('⚠ Rastlina s ID ' + data.openPlantId + ' nenájdená');
+        }
+        return;
+      }
+
+      // Typ 3: Pridanie novej rastliny: { "addPlant": { ...údaje rastliny... } }
+      if (data.addPlant && data.addPlant.name) {
+        const newPlant = { ...data.addPlant };
+        // Vygeneruj ID ak nie je
+        if (!newPlant.id) newPlant.id = 'p' + Date.now();
+        // Skontroluj či už neexistuje (podľa latinského názvu alebo ID)
+        const existing = plants.find(p =>
+          p.id === newPlant.id ||
+          (p.latin && newPlant.latin && p.latin.toLowerCase() === newPlant.latin.toLowerCase())
+        );
+        if (existing) {
+          renderGallery();
+          openModal(existing.id);
+          showToast('ℹ Rastlina už existuje – otváram');
+          return;
+        }
+        plants.push(newPlant);
+        savePlants();
+        renderGallery();
+        openModal(newPlant.id);
+        showToast('✓ Pridaná nová rastlina: ' + newPlant.name);
+        return;
+      }
+
+      showToast('⚠ Neznámy formát súboru');
+    } catch (err) {
+      showToast('⚠ Nesprávny súbor: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  ev.target.value = '';
+}
+
+// Export / import obľúbených ako JSON súbor (záloha na zariadení)
+function exportFavs() {
+  if (!currentUser) { showToast('⚠ Najprv sa prihlás'); return; }
+  const myFavs = getFavs(currentUser.user);
+  const data = { favs: myFavs, user: currentUser.user, exported: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `oblubene-${currentUser.user}-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✓ Obľúbené stiahnuté');
+}
+
+function importFavsFromFile() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'application/json';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (!data.favs || !Array.isArray(data.favs)) {
+          showToast('⚠ Nesprávny súbor obľúbených');
+          return;
+        }
+        if (!currentUser) { showToast('⚠ Najprv sa prihlás'); return; }
+        // Validuj že ID existujú
+        const validIds = data.favs.filter(id => plants.find(p => p.id === id));
+        allFavs[currentUser.user] = validIds;
+        saveFavs();
+        renderGallery();
+        showToast(`✓ Načítaných ${validIds.length} obľúbených`);
+      } catch (err) {
+        showToast('⚠ Chyba: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+function resetData() {
+  if (!confirm('Naozaj obnoviť pôvodných 26 rastlín? Tvoje úpravy zmiznú.')) return;
+  plants = [...DEFAULT_PLANTS];
+  savePlants();
+  renderGallery();
+  showToast('↺ Obnovené');
+}
+
+// ============ HELPERS ============
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+function copyToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).catch(() => copyToClipboardFallback(text));
+  } else {
+    copyToClipboardFallback(text);
+  }
+}
+function copyToClipboardFallback(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(ta);
+}
+
+// ============ KLAVESY ============
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('modal').classList.contains('active')) closeModal();
+    else if (document.getElementById('helpModal').classList.contains('active')) closeHelp();
+    else if (document.getElementById('shareFavsModal').classList.contains('active')) closeShareFavs();
+  }
+});
+
+// ============ SHARE FAVS / NAPÍSAŤ KRÁĽOVI ============
+
+const RANKS = [
+  { min: 0,  max: 9,  label: 'Malá rastlinka',   icon: '🌱', badge: '🌱' },
+  { min: 10, max: 19, label: 'Dospelá rastlinka', icon: '🌿', badge: '🌿' },
+  { min: 20, max: 999,label: 'Rastlinátor 2.0',  icon: '🌳', badge: '🌳⚡' }
+];
+
+function getRank(userId) {
+  const count = getFavs(userId).length;
+  return RANKS.find(r => count >= r.min && count <= r.max) || RANKS[0];
+}
+
+function getRankBadge(userId) {
+  const acc = ACCOUNTS.find(a => a.user === userId);
+  if (acc && acc.isAdmin) return '👑 Kráľ Džungle';
+  const rank = getRank(userId);
+  return rank.badge + ' ' + rank.label;
+}
+
+const USER_SIGNATURES = {
+  valco:     'Valco, Kráľ Džungle 👑🌵',
+  magnolia:  'Magnolia, Kvetná Kráľovná 🌸',
+  bambusak:  'Bambuśák, Ohybný Bambus 🎋',
+  kaktusino: 'Kaktusino, Pichľavý Priateľ 🌵',
+  listovka:  'Listovka, Veľkolistá Dáma 🌿',
+  korenacik: 'Koreňáčik, Hlboký Koreň 🪴',
+  palmica:   'Palmička, Tropická Senzácia 🌴',
+  suculent:  'Šučulentík, Tučný Optimista 🫙',
+  lianakar:  'Liankár, Neúnavný Leziaci 🍃',
+  mchovina:  'Mchovinka, Tichý Zelený Vankúš 🟢'
+};
+
+function generateMailText() {
+  if (!currentUser) return '';
+
+  const signature = USER_SIGNATURES[currentUser.user] || currentUser.name;
+  const rank = getRank(currentUser.user);
+  const myFavIds = getFavs(currentUser.user);
+  const myFavPlants = plants.filter(p => myFavIds.includes(p.id));
+
+  const favsList = myFavPlants.length > 0
+    ? myFavPlants.map(p => '  ' + (p.emoji || '🌿') + ' ' + p.name + ' (' + p.latin + ')').join('\n')
+    : '  (žiadne)';
+
+  const resetNote = sessionFavsCleared
+    ? '\n⚠️ POZNÁMKA: Vymazal/a som všetky obľúbené a chcem začať odznova.\n'
+    : '';
+
+  const text =
+'Ahoj Kráľu Džungle 🌿,\n' +
+'\n' +
+'píšem ti malú správu z Valcovej Džungláreňe.\n' +
+'\n' +
+'━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n' +
+'MOJ ÚČET: ' + currentUser.name + ' (' + currentUser.user + ')\n' +
+'RANK: ' + rank.badge + ' ' + rank.label + '\n' +
+'━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n' +
+'\n' +
+'❤️ MOJE OBĽÚBENÉ RASTLINY (' + myFavPlants.length + '):\n' +
+favsList + '\n' +
+resetNote +
+'\n' +
+'📸 NOVÉ RASTLINY / OTÁZKY:\n' +
+'[Sem napíš čo chceš – popíš novú rastlinu, pridaj link na fotku, otázku...]\n' +
+'\n' +
+'━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n' +
+'Tvoja malá rastlinka,\n' +
+signature + '\n' +
+rank.badge + ' ' + rank.label;
+
+  document.getElementById('shareMailBody').value = text;
+  return text;
+}
+
+function openShareFavs() {
+  document.getElementById('shareFavsModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  generateMailText();
+}
+
+function closeShareFavs() {
+  document.getElementById('shareFavsModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function copyShareText() {
+  const text = document.getElementById('shareMailBody').value;
+  copyToClipboard(text);
+  showToast('✓ Text skopírovaný! Vlož ho do mailu.');
+}
+
+// Reset obľúbených – len pre aktuálneho usera, pamätá si to pre mail
+let sessionFavsCleared = false;
+
+function resetFavs() {
+  if (!currentUser) return;
+  const count = getFavs(currentUser.user).length;
+  if (count === 0) { showToast('Nemáš žiadne obľúbené'); return; }
+  if (!confirm('Vymazať všetkých ' + count + ' obľúbených rastlín? Táto akcia sa nedá vrátiť.')) return;
+  allFavs[currentUser.user] = [];
+  saveFavs();
+  sessionFavsCleared = true;
+  updateWelcome();
+  renderGallery();
+  showToast('↺ Obľúbené vymazané. Keď napíšeš Kráľovi, bude o tom informovaný.');
+}
+
+// Export obľúbených ako "hromadná tlač" – otvorí print s ich štítkami a kartami
+function exportFavsPDF() {
+  if (!currentUser) { showToast('⚠ Nie si prihlásený'); return; }
+  const myFavIds = getFavs(currentUser.user);
+  const myFavPlants = plants.filter(p => myFavIds.includes(p.id));
+  if (myFavPlants.length === 0) {
+    showToast('⚠ Nemáš žiadne obľúbené rastliny. Pridaj srdiečka!');
+    return;
+  }
+  const printArea = document.getElementById('printArea');
+  if (!printArea) { showToast('⚠ Print area chýba'); return; }
+
+  // Zostavíme štítky + karty pre všetky obľúbené
+  printArea.innerHTML = myFavPlants.map(p => buildStitok(p) + buildKarta(p)).join('');
+
+  showToast('🖨 Pripravujem ' + myFavPlants.length + ' rastlín na tlač...');
+  setTimeout(() => {
+    try { window.print(); }
+    catch (e) { showToast('⚠ Chyba pri tlači: ' + e.message); }
+  }, 400);
+}
+
+// ============ HELP / FAQ ============
+function openHelp() {
+  document.getElementById('helpModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  switchHelpTab('user');
+}
+function closeHelp() {
+  document.getElementById('helpModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+function switchHelpTab(tab) {
+  document.querySelectorAll('[data-htab]').forEach(t => t.classList.toggle('active', t.dataset.htab === tab));
+  document.querySelectorAll('.help-pane').forEach(p => p.classList.toggle('active', p.id === 'help-' + tab));
+}
+
+// ============ INIT ============
+try {
+  if (!storageWorks) {
+    var banner = document.createElement('div');
+    banner.style.cssText = 'background:#8b3a3a;color:white;padding:14px 20px;text-align:center;font-size:0.9rem;line-height:1.4;position:fixed;top:0;left:0;right:0;z-index:1000;';
+    banner.innerHTML = '⚠ <b>Ukladanie nefunguje v tomto okne.</b> Stiahni HTML súbor a otvor lokálne.';
+    document.body.insertBefore(banner, document.body.firstChild);
+  }
+
+  if (typeof renderAccountsTable === 'function') {
+    try { renderAccountsTable(); } catch(e) { console.warn('renderAccountsTable failed:', e); }
+  }
+
+  if (restoreSession()) {
+    showMainApp();
+  } else {
+    var ls = document.getElementById('loginScreen');
+    var ma = document.getElementById('mainApp');
+    if (ls) ls.style.display = 'flex';
+    if (ma) ma.style.display = 'none';
+    setTimeout(function() {
+      var u = document.getElementById('loginUser');
+      if (u) u.focus();
+    }, 100);
+  }
+} catch(initErr) {
+  console.error('INIT error:', initErr);
+  alert('Chyba pri inicializácii: ' + initErr.message);
+}
+</script>
+</body>
+</html>
